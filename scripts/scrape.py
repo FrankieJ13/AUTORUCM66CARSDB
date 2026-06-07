@@ -64,7 +64,13 @@ def make_opener():
     return s
 
 
-def fetch_html(session, url, prime=False):
+META_REFRESH_RE = re.compile(
+    r'<meta\s+http-equiv=["\']?refresh["\']?\s+content=["\']?\d+\s*;\s*url=([^"\'>\s]+)',
+    re.IGNORECASE,
+)
+
+
+def fetch_html(session, url, prime=False, depth=0):
     if prime:
         gdpr = "https://auto.ru/gdpr/confirm/?retpath=" + urllib.parse.quote(url, safe="")
         try:
@@ -74,7 +80,20 @@ def fetch_html(session, url, prime=False):
     r = session.get(url, timeout=60, allow_redirects=True)
     if r.status_code != 200:
         raise RuntimeError(f"HTTP {r.status_code} on {url}")
-    return r.text
+    text = r.text
+    # auto.ru иногда возвращает stub-страницу с <meta refresh url=...>
+    if len(text) < 10000 and depth < 3:
+        m = META_REFRESH_RE.search(text)
+        if m:
+            next_url = m.group(1).replace("&amp;", "&")
+            if not next_url.startswith("http"):
+                next_url = urllib.parse.urljoin(url, next_url)
+            print(f"  meta-refresh → {next_url}", flush=True)
+            return fetch_html(session, next_url, prime=False, depth=depth + 1)
+        # короткий ответ без чанков и без redirect — покажем что в нём
+        snippet = text[:200].replace("\n", " ")
+        print(f"  stub len={len(text)} body={snippet!r}", flush=True)
+    return text
 
 
 CHUNK_RE = re.compile(
