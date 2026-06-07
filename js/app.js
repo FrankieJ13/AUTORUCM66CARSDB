@@ -193,9 +193,9 @@
           (c.city ? '<div class="card__city">' + PIN_SVG + esc(c.city) + '</div>' : '') +
         '</div>' +
         '<div class="tiles">' +
-          tile('year',   'Год выпуска',      c.year) +
+          tile('year',   'Год',              c.year) +
           tile('flag',   'Страна',           country) +
-          tile('seats',  'Количество мест',  c.seats) +
+          tile('seats',  'Мест',             c.seats) +
           tile('miles',  'Пробег',           fmtMileage(c.mileage)) +
           tile('owner',  'Владельцы',        c.owners) +
           tile('state',  'Состояние',        c.condition) +
