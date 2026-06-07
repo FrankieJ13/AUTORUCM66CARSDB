@@ -138,12 +138,16 @@ def parse_listing_state(html):
     # офферы внутри него остаются цельными даже если общий blob не валидный JSON.
     blob = "".join(b for _, b in chunks)
 
-    # Пагинация может оказаться в любом чанке — ищем по всему blob.
-    m_pages = re.search(r'"total_page_count":(\d+)', blob)
-    m_total = re.search(r'"total_offers_count":(\d+)', blob)
+    # Пагинация листинга узнаётся по тому, что total_page_count — ПЕРВОЕ поле
+    # в объекте pagination (в подсписках типа похожих/рекомендованных первым
+    # идёт page/current). Дальше total_offers_count в том же объекте.
+    m = re.search(
+        r'"pagination":\{"total_page_count":(\d+),"total_offers_count":(\d+)',
+        blob,
+    )
     pagination = {
-        "total_page_count": int(m_pages.group(1)) if m_pages else 1,
-        "total_offers_count": int(m_total.group(1)) if m_total else 0,
+        "total_page_count": int(m.group(1)) if m else 1,
+        "total_offers_count": int(m.group(2)) if m else 0,
     }
 
     # Каждый оффер — самостоятельный JSON-объект с сигнатурой `{"availability":"X","color_hex":`.
