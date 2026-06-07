@@ -1,4 +1,4 @@
-# AUTO.RU-CM66-CARS-DB
+# AUTORUCM66CARSDB
 
 Единый каталог auto.ru по 12 дилерам Crystal Motors.
 
@@ -19,15 +19,15 @@ auto.ru → GitHub Actions (Python) → cars.csv в репо → GH Pages (index
 ## GH Pages
 
 Settings → Pages → Source: Deploy from branch → `main` / `/ (root)` → Save.
-Сайт: https://frankiej13.github.io/AUTO.RU-CM66-CARS-DB/
+Сайт: https://frankiej13.github.io/AUTORUCM66CARSDB/
 
 ## Зеркало в Google Sheets (опционально)
 
 В таблице [1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY](https://docs.google.com/spreadsheets/d/1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY)
-на листе `AUTO.RU-CM66-CARS-DB` в A1 вставьте:
+на листе `AUTORUCM66CARSDB` в A1 вставьте:
 
 ```
-=IMPORTDATA("https://raw.githubusercontent.com/FrankieJ13/AUTO.RU-CM66-CARS-DB/main/cars.csv")
+=IMPORTDATA("https://raw.githubusercontent.com/FrankieJ13/AUTORUCM66CARSDB/main/cars.csv")
 ```
 
 Лист сам подтянет актуальный CSV. Никакого сервис-аккаунта, никакой OAuth.
