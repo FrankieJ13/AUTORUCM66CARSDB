@@ -162,6 +162,11 @@
   function card(c) {
     const photo = c.image_url || '';
     const country = c.country || COUNTRY_BY_BRAND[c.brand] || '';
+    const brand = c.brand || '';
+    // вторую строку формируем как title без префикса бренда; если title пустой — просто модель
+    const modelLine = c.title && brand && c.title.toLowerCase().startsWith(brand.toLowerCase())
+      ? c.title.slice(brand.length).trim()
+      : (c.title || c.model || '');
     const el = document.createElement('a');
     el.className = 'card';
     el.href = c.url || '#';
@@ -170,13 +175,14 @@
     el.innerHTML =
       '<div class="card__media">' +
         (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(c.title) + '">' : '') +
+        '<div class="card__overlay">' +
+          (brand ?      '<div class="card__brand">' + esc(brand) + '</div>' : '') +
+          (modelLine ?  '<div class="card__model">' + esc(modelLine) + '</div>' : '') +
+                        '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
+        '</div>' +
         (c.city ? '<span class="card__city">' + esc(c.city) + '</span>' : '') +
       '</div>' +
       '<div class="card__body">' +
-        '<div class="card__head">' +
-          '<div class="card__title">' + esc(c.title || (c.brand + ' ' + c.model)) + '</div>' +
-          '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
-        '</div>' +
         '<div class="tiles">' +
           tile('year',   'ГОД',    'Год выпуска',  c.year) +
           tile('miles',  'ПРОБЕГ', 'Пробег',       fmtMileage(c.mileage)) +
@@ -196,6 +202,8 @@
       '</div>';
     return el;
   }
+
+  // удаляем неиспользуемый класс .card__head, оставшийся в CSS — иначе пусто-наследует стили
 
   // ============ УТИЛИТЫ ============
   function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
