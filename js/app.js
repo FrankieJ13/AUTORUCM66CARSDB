@@ -133,8 +133,11 @@
     const photo = c.image_url || '';
     const engineLine = [c.engine, c.transmission].filter(Boolean).join(' · ');
     const bodyLine   = [c.body, c.drive].filter(Boolean).join(' · ');
-    const el = document.createElement('article');
+    const el = document.createElement('a');
     el.className = 'card';
+    el.href = c.url || '#';
+    el.target = '_blank';
+    el.rel = 'noopener';
     el.innerHTML =
       '<div class="card__media">' +
         (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(c.title) + '">' : '') +
@@ -148,22 +151,13 @@
         '<div class="tiles">' +
           tile('year',   'Год',           c.year) +
           tile('miles',  'Пробег',        fmtMileage(c.mileage)) +
-          tile('price',  'Цена',          fmtPrice(c.price)) +
-          tile('engine', 'Двигатель / КПП', engineLine) +
-          tile('body',   'Кузов / Привод', bodyLine) +
+          tile('engine', 'Двигатель',     engineLine) +
+          tile('body',   'Кузов/привод',  bodyLine) +
           tile('trim',   'Комплектация',  c.trim) +
-          tile('seats',  'Кол-во мест',   c.seats ? c.seats + ' мест' : '') +
-          tile('owner',  'Владельцы',     c.owners ? c.owners + ' владелец' : '') +
+          tile('seats',  'Мест',          c.seats) +
+          tile('owner',  'Владельцы',     c.owners) +
           tile('state',  'Состояние',     c.condition) +
-          tile('pts',    'ПТС',           c.pts) +
-          tile('flag',   'Страна',        c.country) +
-          tile('pin',    'Город',         c.city) +
-          tile('wheel',  'Руль',          c.wheel) +
           tile('color',  'Цвет',          c.color) +
-        '</div>' +
-        '<div class="card__foot">' +
-          '<a href="' + esc(c.url) + '" target="_blank" rel="noopener" class="card__open">Открыть объявление →</a>' +
-          '<span class="card__source">auto.ru</span>' +
         '</div>' +
       '</div>';
     return el;
