@@ -120,7 +120,7 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
   display: block; text-decoration: none;
 }
 .card__media img {
-  width: 100%; height: 100%; object-fit: cover; object-position: center bottom;
+  width: 100%; height: 100%; object-fit: cover; object-position: left bottom;
   display: block;
 }
 .card__media::after {
