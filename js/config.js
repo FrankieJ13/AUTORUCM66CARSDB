@@ -1,6 +1,6 @@
-// После публикации листа в виде CSV (Файл → Поделиться → Опубликовать в Интернете → лист AUTO.RU-CM66-CARS-DB → CSV)
-// вставьте ссылку сюда. Пока стоит fallback на ?gid=0 — заменить на реальный gid вкладки.
+// Фронт читает cars.csv из этого же репо.
+// GH Pages отдаёт его по тому же домену → никакого CORS, никакой публикации Sheet.
 window.AUTORU_CONFIG = {
-  csvUrl: "https://docs.google.com/spreadsheets/d/1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY/export?format=csv&gid=0",
+  csvUrl: "cars.csv",
   pageSize: 24,
 };

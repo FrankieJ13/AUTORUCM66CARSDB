@@ -1,43 +1,45 @@
 # AUTO.RU-CM66-CARS-DB
 
-Единый каталог auto.ru по 12 городам Crystal Motors. GH Pages → CSV из Google Sheets → парсер на Apps Script.
+Единый каталог auto.ru по 12 дилерам Crystal Motors.
 
 ## Архитектура
 
 ```
-auto.ru (12 дилеров) → Apps Script (autoru-scraper.gs)
-                       → Google Sheet (1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY)
-                       → опубликован как CSV
-                       → index.html (GH Pages) рендерит карточки
+auto.ru → GitHub Actions (Python) → cars.csv в репо → GH Pages (index.html)
 ```
 
-## Установка (один раз)
+- **Скрапер**: `scripts/scrape.py` — фетчит дилерские страницы, разбирает встроенный SSR-state, мапит поля в строки CSV.
+- **Расписание**: `.github/workflows/scrape.yml` — cron 00:00 / 04:00 / 13:00 МСК (21:00 / 01:00 / 10:00 UTC). Запуск руками: вкладка Actions → Scrape auto.ru → Run workflow.
+- **Фронт**: `index.html` + `js/app.js` + `css/style.css`. Читает `cars.csv` из того же репо, рендерит карточки с фильтрами.
 
-### 1. Google Sheet — шапка
-- Откройте таблицу [1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY](https://docs.google.com/spreadsheets/d/1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY).
-- Расширения → Apps Script.
-- Создайте файл `setup-headers.gs`, скопируйте содержимое [apps-script/setup-headers.gs](apps-script/setup-headers.gs).
-- Запустите `setupHeaders` — создастся лист `AUTO.RU-CM66-CARS-DB` с 22 колонками.
-
-### 2. Apps Script — парсер
-- В том же проекте создайте файл `autoru-scraper.gs`, скопируйте [apps-script/autoru-scraper.gs](apps-script/autoru-scraper.gs).
-- Запустите `installTriggers` — поставит ежедневные старты в 00:00, 04:00, 13:00.
-- Разово запустите `startScrape` для проверки. Логи: View → Executions.
-
-### 3. Публикация листа как CSV
-- Файл → Поделиться → Опубликовать в Интернете.
-- Лист: `AUTO.RU-CM66-CARS-DB`, формат: CSV. Опубликовать.
-- Скопируйте `gid` вкладки (URL вида `…/edit#gid=12345`).
-- В [js/config.js](js/config.js) подставьте `gid` в `csvUrl`.
-
-### 4. GH Pages
-- Settings → Pages → Source: Deploy from branch → `main` / `/ (root)` → Save.
-- Через ~1 минуту сайт доступен на `https://frankiej13.github.io/AUTO.RU-CM66-CARS-DB/`.
-
-## Колонки таблицы
+## Колонки CSV
 
 `brand`, `model`, `title`, `url`, `price`, `city`, `year`, `country`, `seats`, `mileage`, `owners`, `condition`, `pts`, `trim`, `engine`, `transmission`, `drive`, `wheel`, `body`, `color`, `image_url`, `updated_at`
 
-## Расписание
+## GH Pages
 
-Apps Script запускает `startScrape` ежедневно в 00:00, 04:00, 13:00 (часовой пояс проекта). Каждый запуск чистит лист и обходит все 12 городов. 6-минутный лимит обходится через `continueScrape` (триггер каждые 5 мин, дорабатывает остаток).
+Settings → Pages → Source: Deploy from branch → `main` / `/ (root)` → Save.
+Сайт: https://frankiej13.github.io/AUTO.RU-CM66-CARS-DB/
+
+## Зеркало в Google Sheets (опционально)
+
+В таблице [1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY](https://docs.google.com/spreadsheets/d/1N8c3SLHCoZ0cdL4EcD4rgAphu7AMPjxrxPBL7dkOSUY)
+на листе `AUTO.RU-CM66-CARS-DB` в A1 вставьте:
+
+```
+=IMPORTDATA("https://raw.githubusercontent.com/FrankieJ13/AUTO.RU-CM66-CARS-DB/main/cars.csv")
+```
+
+Лист сам подтянет актуальный CSV. Никакого сервис-аккаунта, никакой OAuth.
+
+## Локальный запуск скрапера
+
+```bash
+python3 scripts/scrape.py cars.csv
+```
+
+Зависимостей нет, только стандартная библиотека Python 3.
+
+## Почему не Apps Script
+
+UrlFetchApp ходит из общего пула IP Google → auto.ru возвращает заглушку с `"isRobot":true` и пустым `listing`. Подтверждено логами. GitHub Actions IP-пулы у auto.ru не помечены, страница отдаётся нормально.
