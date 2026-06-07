@@ -189,14 +189,40 @@ window.AutoSearch = (function () {
     return { found, rest };
   }
 
+  // ===== ОЧИСТКА ФРАЗ ОТ УЖЕ РАСПОЗНАННОГО =====
+  // Удаляем то, что вынули в фильтры — иначе "7 мест", "до 1.2 млн" и т.п.
+  // утекают в free-text и ломают матчинг.
+  function stripPhrases(q) {
+    const unit = "(?:млн|мил(?:лион(?:а|ов)?)?|м|тыс(?:яч)?|т|тр|к|k|m)";
+    const num  = "\\d+(?:[.,]\\d+)?";
+    return q
+      // ценовые диапазоны и точечные суммы
+      .replace(new RegExp(`(?:от|до|<=?|>=?|дороже|дешевле|не\\s+дороже|не\\s+дешевле|бюджет(?:ом)?|цена\\s+до|стоимость\\s+до|начиная\\s+с|меньше)\\s+${num}\\s*${unit}?`, "gi"), " ")
+      .replace(new RegExp(`${num}\\s*${unit}\\s*[-—–]\\s*${num}\\s*${unit}`, "gi"), " ")
+      .replace(new RegExp(`\\b${num}\\s*${unit}\\b`, "gi"), " ")
+      // года
+      .replace(/\b(?:19|20)\d{2}\s*[-—–]\s*(?:19|20)\d{2}\b/g, " ")
+      .replace(/(?:от|с|до|по|после|раньше|старше|моложе|не\s+(?:старше|новее)|свежее|начиная\s+с)\s+(?:19|20)\d{2}/gi, " ")
+      .replace(/\b(?:19|20)\d{2}(?:\s*г(?:од|ода|оду)?\.?)?\b/g, " ")
+      // места
+      .replace(/\d+\s*[\- ]?\s*мест(?:ный|ная|ное|а|ов)?/gi, " ")
+      .replace(/\bна\s+\d+\s+мест/gi, " ")
+      // пробег
+      .replace(/до\s+\d+(?:[.,]\d+)?\s*(?:тыс|т|к|k)?\s*км?/gi, " ")
+      .replace(/пробег(?:ом)?\s+до\s+\d+(?:[.,]\d+)?\s*(?:тыс|т|к|k)?\s*км?/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   // ===== ПАРСЕР =====
   function parse(rawQuery) {
-    const q = normalize(rawQuery);
-    const price = extractPrice(q);
-    const year  = extractYear(q);
-    const mileageMax = extractMileageMax(q);
-    const seats = extractSeats(q);
-    const { found, rest } = findAliasMatches(q);
+    const qFull = normalize(rawQuery);
+    const price = extractPrice(qFull);
+    const year  = extractYear(qFull);
+    const mileageMax = extractMileageMax(qFull);
+    const seats = extractSeats(qFull);
+    const qClean = stripPhrases(qFull);
+    const { found, rest } = findAliasMatches(qClean);
     return {
       raw: rawQuery,
       free: rest,
