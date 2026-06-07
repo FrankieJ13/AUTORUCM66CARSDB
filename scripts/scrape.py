@@ -130,30 +130,7 @@ def find_balanced_end(s):
 OFFER_RE = re.compile(r'\{"availability":"[A-Z_]+"')
 
 
-def parse_listing_state(html):
-    chunks = [(int(m.group(1)), m.group(2)) for m in CHUNK_RE.finditer(html)]
-    if not chunks:
-        raise RuntimeError("no RIS chunks (likely IP-blocked or wrong page)")
-
-    # Концатенируем все чанки в порядке появления в DOM — это поток React-payload,
-    # офферы внутри него остаются цельными даже если общий blob не валидный JSON.
-    blob = "".join(b for _, b in chunks)
-
-    # Пагинация листинга узнаётся по тому, что total_page_count — ПЕРВОЕ поле
-    # в объекте pagination (в подсписках типа похожих/рекомендованных первым
-    # идёт page/current). Дальше total_offers_count в том же объекте.
-    m = re.search(
-        r'"pagination":\{"total_page_count":(\d+),"total_offers_count":(\d+)',
-        blob,
-    )
-    pagination = {
-        "total_page_count": int(m.group(1)) if m else 1,
-        "total_offers_count": int(m.group(2)) if m else 0,
-    }
-
-    # Каждый оффер — самостоятельный JSON-объект с сигнатурой `{"availability":"X","color_hex":`.
-    offers = []
-    seen = set()
+def _extract_offers_from_blob(blob, seen, offers):
     for m in OFFER_RE.finditer(blob):
         start = m.start()
         end = find_balanced_end_at(blob, start)
@@ -164,11 +141,45 @@ def parse_listing_state(html):
         except json.JSONDecodeError:
             continue
         sid = o.get("saleId")
-        # фильтр: настоящий оффер всегда имеет saleId и vehicle_info
         if not sid or "vehicle_info" not in o or sid in seen:
             continue
         seen.add(sid)
         offers.append(o)
+
+
+def parse_listing_state(html):
+    chunks = [(int(m.group(1)), m.group(2)) for m in CHUNK_RE.finditer(html)]
+    if not chunks:
+        raise RuntimeError("no RIS chunks (likely IP-blocked or wrong page)")
+
+    # Пробуем несколько порядков склейки чанков и объединяем найденные офферы.
+    # Оффер, разорванный на стыке в одном порядке, может оказаться цельным в другом.
+    orderings = [
+        chunks,                                          # DOM order
+        sorted(chunks, key=lambda c: c[0]),              # ASC by chunk-id
+        sorted(chunks, key=lambda c: -c[0]),             # DESC by chunk-id
+    ]
+    blobs = []
+    seen = set()
+    offers = []
+    for order in orderings:
+        b = "".join(body for _, body in order)
+        blobs.append(b)
+        _extract_offers_from_blob(b, seen, offers)
+
+    # Пагинация — ищем по любому из blob'ов.
+    pagination = {"total_page_count": 1, "total_offers_count": 0}
+    for b in blobs:
+        m = re.search(
+            r'"pagination":\{"total_page_count":(\d+),"total_offers_count":(\d+)',
+            b,
+        )
+        if m:
+            pagination = {
+                "total_page_count": int(m.group(1)),
+                "total_offers_count": int(m.group(2)),
+            }
+            break
 
     return {"listing": {"data": {"offers": offers, "pagination": pagination}}}
 
