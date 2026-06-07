@@ -126,39 +126,71 @@ def find_balanced_end(s):
     return -1
 
 
+OFFER_RE = re.compile(r'\{"availability":"[A-Z_]+","color_hex":')
+
+
 def parse_listing_state(html):
     chunks = [(int(m.group(1)), m.group(2)) for m in CHUNK_RE.finditer(html)]
     if not chunks:
         raise RuntimeError("no RIS chunks (likely IP-blocked or wrong page)")
-    root_idx = next((i for i, (_, b) in enumerate(chunks) if b[:1] == "{"), -1)
-    if root_idx < 0:
-        sample = " | ".join(f"id={c[0]} len={len(c[1])} start={c[1][:30]!r}" for c in chunks)
-        raise RuntimeError(f"no root chunk; chunks: {sample}")
 
-    root = chunks[root_idx]
-    rest = [c for i, c in enumerate(chunks) if i != root_idx]
-    orderings = [
-        [root] + sorted(rest, key=lambda c: -c[0]),
-        [root] + rest,
-        [root] + sorted(rest, key=lambda c: c[0]),
-        [root],
-    ]
-    last_err = None
-    for order in orderings:
-        s = "".join(b for _, b in order)
-        end = find_balanced_end(s)
+    # Концатенируем все чанки в порядке появления в DOM — это поток React-payload,
+    # офферы внутри него остаются цельными даже если общий blob не валидный JSON.
+    blob = "".join(b for _, b in chunks)
+
+    # Пагинация может оказаться в любом чанке — ищем по всему blob.
+    m_pages = re.search(r'"total_page_count":(\d+)', blob)
+    m_total = re.search(r'"total_offers_count":(\d+)', blob)
+    pagination = {
+        "total_page_count": int(m_pages.group(1)) if m_pages else 1,
+        "total_offers_count": int(m_total.group(1)) if m_total else 0,
+    }
+
+    # Каждый оффер — самостоятельный JSON-объект с сигнатурой `{"availability":"X","color_hex":`.
+    offers = []
+    seen = set()
+    for m in OFFER_RE.finditer(blob):
+        start = m.start()
+        end = find_balanced_end_at(blob, start)
         if end < 0:
-            last_err = "unbalanced"
             continue
         try:
-            obj = json.loads(s[:end])
-        except json.JSONDecodeError as e:
-            last_err = str(e)
+            o = json.loads(blob[start:end])
+        except json.JSONDecodeError:
             continue
-        if obj and obj.get("listing", {}).get("data", {}).get("offers") is not None:
-            return obj
-        last_err = "no listing.data.offers"
-    raise RuntimeError(f"reassemble failed: {last_err}")
+        sid = o.get("saleId")
+        if not sid or sid in seen:
+            continue
+        seen.add(sid)
+        offers.append(o)
+
+    return {"listing": {"data": {"offers": offers, "pagination": pagination}}}
+
+
+def find_balanced_end_at(s, start):
+    depth = 0
+    in_str = False
+    esc = False
+    for i in range(start, len(s)):
+        c = s[i]
+        if esc:
+            esc = False
+            continue
+        if c == "\\":
+            esc = True
+            continue
+        if c == '"':
+            in_str = not in_str
+            continue
+        if in_str:
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+    return -1
 
 
 def offer_to_row(o, city):
