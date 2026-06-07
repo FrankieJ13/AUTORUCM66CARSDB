@@ -1,6 +1,6 @@
-// Фронт читает cars.csv из этого же репо.
-// GH Pages отдаёт его по тому же домену → никакого CORS, никакой публикации Sheet.
+// Фронт читает cars.json (компактный формат: header + массив массивов).
+// CSV остаётся для импорта в Sheets через IMPORTDATA.
 window.AUTORU_CONFIG = {
-  csvUrl: "cars.csv",
+  dataUrl: "cars.json",
   pageSize: 24,
 };

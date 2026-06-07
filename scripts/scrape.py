@@ -315,19 +315,31 @@ def scrape_city(opener, city, base_url):
 
 
 def main():
-    out_path = sys.argv[1] if len(sys.argv) > 1 else "cars.csv"
+    csv_path  = sys.argv[1] if len(sys.argv) > 1 else "cars.csv"
+    json_path = sys.argv[2] if len(sys.argv) > 2 else "cars.json"
     opener = make_opener()
     all_rows = []
     for city, url in CITIES:
         print(f"== {city} ==", flush=True)
         all_rows.extend(scrape_city(opener, city, url))
-    # write CSV (overwrite)
-    with open(out_path, "w", encoding="utf-8", newline="") as f:
+
+    # CSV — для импорта в Google Sheets через IMPORTDATA, оставляем
+    with open(csv_path, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=HEADERS)
         w.writeheader()
         for r in all_rows:
             w.writerow(r)
-    print(f"TOTAL: {len(all_rows)} rows → {out_path}", flush=True)
+
+    # JSON — компактный (header + arrays), фронт парсит нативным JSON.parse
+    payload = {
+        "ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "h": HEADERS,
+        "r": [[r.get(k, "") for k in HEADERS] for r in all_rows],
+    }
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+
+    print(f"TOTAL: {len(all_rows)} rows → {csv_path} + {json_path}", flush=True)
 
 
 if __name__ == "__main__":

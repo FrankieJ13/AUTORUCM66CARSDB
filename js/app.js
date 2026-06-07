@@ -13,42 +13,20 @@
   let shown = 0;
 
   // ============ ЗАГРУЗКА ============
-  fetch(cfg.csvUrl, { redirect: 'follow' })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-    .then(text => {
-      cars = parseCsv(text);
+  fetch(cfg.dataUrl, { redirect: 'follow' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(data => {
+      const h = data.h || [];
+      cars = (data.r || []).map(row => {
+        const o = {};
+        for (let i = 0; i < h.length; i++) o[h[i]] = row[i] === undefined ? '' : row[i];
+        return o;
+      });
       els.status.textContent = 'Каталог: ' + cars.length + ' авто';
       populateSelects();
       apply();
     })
     .catch(err => { els.status.textContent = 'Ошибка загрузки: ' + err.message; });
-
-  // ============ CSV ============
-  function parseCsv(csv) {
-    const rows = [];
-    let row = [], cell = '', quoted = false;
-    for (let i = 0; i < csv.length; i++) {
-      const c = csv[i];
-      if (quoted) {
-        if (c === '"') { if (csv[i + 1] === '"') { cell += '"'; i++; } else quoted = false; }
-        else cell += c;
-      } else {
-        if (c === '"') quoted = true;
-        else if (c === ',') { row.push(cell); cell = ''; }
-        else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
-        else if (c === '\r') { /* skip */ }
-        else cell += c;
-      }
-    }
-    if (cell.length || row.length) { row.push(cell); rows.push(row); }
-    if (!rows.length) return [];
-    const headers = rows[0];
-    return rows.slice(1).filter(r => r.length > 1).map(r => {
-      const o = {};
-      headers.forEach((h, i) => { o[h] = r[i] === undefined ? '' : r[i]; });
-      return o;
-    });
-  }
 
   // ============ ФИЛЬТРЫ-СЕЛЕКТЫ ============
   function populateSelects() {
