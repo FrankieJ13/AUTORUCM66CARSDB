@@ -62,8 +62,8 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 
 .card__media { position: relative; min-height: 100%; background: #0a0c10; overflow: hidden; }
 .card__media img {
-  width: 100%; height: 100%; object-fit: cover;
-  object-position: right bottom;
+  width: 100%; height: 100%; object-fit: contain;
+  object-position: center bottom;
   display: block;
 }
 /* двойной градиент: сверху-вниз стирает белый верх фоток + слева-направо
