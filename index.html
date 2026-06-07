@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crystal Motors — Каталог auto.ru</title>
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__brand">
+        <strong>Crystal Motors</strong>
+        <span>Единый каталог auto.ru</span>
+      </div>
+      <div class="topbar__meta">
+        <span id="status">Загрузка каталога…</span>
+        <span id="counter"></span>
+      </div>
+    </header>
+
+    <section class="filters">
+      <input id="q" type="search" placeholder="Поиск: марка, модель, город, кузов…" autocomplete="off">
+      <select id="city"><option value="">Все города</option></select>
+      <select id="brand"><option value="">Все марки</option></select>
+      <select id="body"><option value="">Все кузова</option></select>
+      <select id="transmission"><option value="">Все КПП</option></select>
+      <select id="drive"><option value="">Все приводы</option></select>
+      <select id="sort">
+        <option value="price_asc">Цена ↑</option>
+        <option value="price_desc">Цена ↓</option>
+        <option value="year_desc">Год: новее</option>
+        <option value="year_asc">Год: старше</option>
+        <option value="mileage_asc">Пробег ↑</option>
+        <option value="updated_desc">Свежие</option>
+      </select>
+      <button id="reset" type="button">Сброс</button>
+    </section>
+
+    <main id="grid" class="grid"></main>
+
+    <button id="loadMore" class="load-more" hidden>Показать ещё</button>
+
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
