@@ -134,23 +134,18 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 
 .card__foot { display: none; }
 
-/* Адаптив: на узких карточках складываем вертикально — фото сверху, контент снизу */
+/* Адаптив: ВСЕГДА горизонтально (фото слева, плитки справа), только шрифты уменьшаются */
 @container (max-width: 420px) {
-  .card { grid-template-columns: 1fr; }
-  .card__media { aspect-ratio: 16 / 9; max-height: 240px; }
-  .card__media img { object-position: center 70%; }
-  .card__media::after {
-    /* в стопке слева-направо градиент не нужен — оверлей всегда есть место */
-    background: linear-gradient(to bottom, rgba(0,0,0,.55) 0%, rgba(0,0,0,.15) 35%, transparent 60%);
-  }
-  .card__overlay { right: 100px; }
-  .card__brand { font-size: 16px; }
-  .card__model { font-size: 14px; }
-  .card__price { font-size: 16px; }
-  .tile { padding: 4px 7px; column-gap: 6px; }
-  .tile__label { font-size: 8.5px; }
-  .tile__value { font-size: 11px; }
-  .tile__icon { width: 14px; height: 14px; }
+  .card__overlay { top: 8px; left: 8px; right: 58px; }
+  .card__brand { font-size: 11px; }
+  .card__model { font-size: 10px; }
+  .card__price { font-size: 11px; margin-top: 2px; }
+  .card__city { top: 7px; right: 7px; font-size: 9px; padding: 2px 6px; max-width: 50px; }
+  .card__body { padding: 7px 8px; }
+  .tile { padding: 3px 5px; column-gap: 4px; border-radius: 5px; }
+  .tile__label { font-size: 7.5px; letter-spacing: .01em; }
+  .tile__value { font-size: 9.5px; margin-top: 1px; }
+  .tile__icon { width: 11px; height: 11px; }
 }
 @container (min-width: 560px) {
   .card__brand { font-size: 16px; }
