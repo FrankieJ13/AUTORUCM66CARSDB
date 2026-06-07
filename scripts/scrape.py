@@ -189,12 +189,24 @@ def offer_to_row(o, city):
     }
 
 
+MAX_PAGES_UNKNOWN = 3
+MAX_CONSECUTIVE_ERRORS = 3
+
 def scrape_city(opener, city, base_url):
     rows = []
     page = 1
     total_pages = None
     primed = False
-    while total_pages is None or page <= total_pages:
+    consec_err = 0
+    while True:
+        if total_pages is not None and page > total_pages:
+            break
+        if total_pages is None and page > MAX_PAGES_UNKNOWN:
+            print(f"  ABORT {city}: no successful parse in first {MAX_PAGES_UNKNOWN} pages", flush=True)
+            break
+        if consec_err >= MAX_CONSECUTIVE_ERRORS:
+            print(f"  ABORT {city}: {consec_err} consecutive errors", flush=True)
+            break
         url = base_url if page == 1 else base_url + f"?page={page}"
         try:
             html = fetch_html(opener, url, prime=not primed)
@@ -207,8 +219,10 @@ def scrape_city(opener, city, base_url):
             for o in offers:
                 rows.append(offer_to_row(o, city))
             print(f"  {city} p{page}/{total_pages} +{len(offers)}", flush=True)
+            consec_err = 0
         except Exception as e:
             print(f"  ERR {city} p{page}: {e}", flush=True)
+            consec_err += 1
         page += 1
         time.sleep(PAUSE)
     return rows

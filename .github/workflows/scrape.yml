@@ -17,18 +17,17 @@ concurrency:
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest
+    # На self-hosted Windows runner — IP вашего ПК, auto.ru его пропускает.
+    runs-on: [self-hosted, Windows]
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Run scraper
-        run: python3 scripts/scrape.py cars.csv
+        run: python scripts/scrape.py cars.csv
 
       - name: Commit changes
         run: |
