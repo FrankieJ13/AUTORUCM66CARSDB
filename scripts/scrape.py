@@ -10,10 +10,12 @@ import re
 import sys
 import time
 import urllib.parse
-import urllib.request
-from http.cookiejar import CookieJar
 
-UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+# curl_cffi имитирует TLS-handshake Chrome/Firefox — urllib и requests Яндекс
+# различает по JA3 fingerprint и режет ещё до HTTP.
+from curl_cffi import requests as cc_requests
+
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 PAUSE = 1.2
 
 CITIES = [
@@ -52,27 +54,27 @@ HEADERS = [
 
 
 def make_opener():
-    cj = CookieJar()
-    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
-    opener.addheaders = [
-        ("User-Agent", UA),
-        ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
-        ("Accept-Language", "ru-RU,ru;q=0.9"),
-    ]
-    return opener
+    # Session держит cookies между запросами и имитирует Chrome TLS.
+    s = cc_requests.Session(impersonate="chrome")
+    s.headers.update({
+        "User-Agent": UA,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "ru-RU,ru;q=0.9",
+    })
+    return s
 
 
-def fetch_html(opener, url, prime=False):
+def fetch_html(session, url, prime=False):
     if prime:
         gdpr = "https://auto.ru/gdpr/confirm/?retpath=" + urllib.parse.quote(url, safe="")
         try:
-            opener.open(gdpr, timeout=30).read()
+            session.get(gdpr, timeout=30, allow_redirects=True)
         except Exception as e:
             print(f"  gdpr-prime warn: {e}", flush=True)
-    with opener.open(url, timeout=60) as r:
-        if r.status != 200:
-            raise RuntimeError(f"HTTP {r.status} on {url}")
-        return r.read().decode("utf-8", errors="replace")
+    r = session.get(url, timeout=60, allow_redirects=True)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code} on {url}")
+    return r.text
 
 
 CHUNK_RE = re.compile(

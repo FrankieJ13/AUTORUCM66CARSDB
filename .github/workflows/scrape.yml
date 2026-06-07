@@ -20,8 +20,14 @@ jobs:
     # На self-hosted Windows runner — IP вашего ПК, auto.ru его пропускает.
     runs-on: [self-hosted, Windows]
     timeout-minutes: 30
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: '1'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Python deps
+        run: python -m pip install --upgrade pip; python -m pip install -r scripts/requirements.txt
 
       - name: Run scraper
         run: python scripts/scrape.py cars.csv
