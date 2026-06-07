@@ -216,13 +216,14 @@ def offer_to_row(o, city):
     doc = o.get("documents") or {}
     st = o.get("state") or {}
 
-    imgs = []
+    # Берём только первую (титульную) — карточке хватает одной.
+    image_url = ""
     for i in st.get("image_urls") or []:
         sz = i.get("sizes") or {}
         u = sz.get("1200x900") or sz.get("orig")
         if u:
-            imgs.append("https:" + u)
-    image_url = "|".join(imgs)
+            image_url = "https:" + u
+            break
 
     color_hex = (o.get("color_hex") or "").upper()
     color = COLOR.get(color_hex) or (f"#{color_hex}" if color_hex else "")
