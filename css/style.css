@@ -30,6 +30,7 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 .topbar__search::placeholder { color: var(--muted); }
 
 .topbar__right { display: flex; align-items: center; gap: 12px; position: relative; }
+.topbar__meta-mobile { display: none; }   /* виден только на мобиле */
 #status, #counter { color: var(--muted); font-size: 12px; white-space: nowrap; }
 
 .btn-filters {
@@ -47,7 +48,8 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 .filters-popup {
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 30;
   background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
-  padding: 12px; min-width: 460px; max-width: calc(100vw - 24px);
+  padding: 12px; min-width: 520px; max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 80px); overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0,0,0,.5);
 }
 .filters-popup__row {
@@ -55,21 +57,33 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 }
 .filters-popup__row:last-child { margin-bottom: 0; }
 .filters-popup__row--actions { grid-template-columns: 1fr; }
-.filters-popup select, .filters-popup button {
+.filters-popup select, .filters-popup input, .filters-popup button {
   background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
-  border-radius: 7px; padding: 8px 10px; font: inherit; outline: none; cursor: pointer;
-  width: 100%;
+  border-radius: 7px; padding: 8px 10px; font: inherit; outline: none;
+  width: 100%; min-width: 0;
 }
-.filters-popup select:focus { border-color: var(--accent); }
+.filters-popup button { cursor: pointer; }
+.filters-popup select:focus, .filters-popup input:focus { border-color: var(--accent); }
 .filters-popup button:hover { border-color: var(--accent); color: var(--accent); }
+.filters-popup input::placeholder { color: var(--muted); }
+.filters-popup input[type="number"]::-webkit-outer-spin-button,
+.filters-popup input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.filters-popup input[type="number"] { -moz-appearance: textfield; }
 
 @media (max-width: 700px) {
-  .topbar { grid-template-columns: 1fr auto; gap: 8px; padding: 10px 12px; }
-  .topbar__brand { grid-column: 1 / span 2; }
+  .topbar { grid-template-columns: 1fr auto; gap: 8px 10px; padding: 10px 12px; }
+  /* строка 1: бренд + статус|счётчик справа */
+  .topbar__brand { grid-column: 1; }
   .topbar__brand strong { font-size: 14px; }
+  .topbar__meta-mobile {
+    grid-column: 2; display: flex; flex-direction: column; align-items: flex-end;
+    color: var(--muted); font-size: 11px; line-height: 1.3; white-space: nowrap;
+  }
+  /* строка 2: поиск + кнопка фильтров */
   .topbar__search { grid-column: 1; }
   .topbar__right { grid-column: 2; gap: 6px; }
-  #status, #counter { display: none; }
+  /* десктоп-статусы скрываем — те же значения дублируются в mobile-meta */
+  .topbar__right #status, .topbar__right #counter { display: none; }
   .filters-popup { min-width: 280px; right: -8px; }
   .filters-popup__row { grid-template-columns: 1fr 1fr; }
 }

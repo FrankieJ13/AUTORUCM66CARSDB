@@ -2,12 +2,24 @@
   const cfg = window.AUTORU_CONFIG || {};
   const $ = (id) => document.getElementById(id);
   const els = {
-    status: $('status'), counter: $('counter'), grid: $('grid'), chips: $('chips'),
-    q: $('q'), city: $('city'), brand: $('brand'), body: $('body'),
-    transmission: $('transmission'), drive: $('drive'), sort: $('sort'),
+    status: $('status'), counter: $('counter'),
+    statusMobile: $('statusMobile'), counterMobile: $('counterMobile'),
+    grid: $('grid'), chips: $('chips'),
+    q: $('q'),
+    city: $('city'), brand: $('brand'), body: $('body'),
+    transmission: $('transmission'), drive: $('drive'), wheel: $('wheel'),
+    country: $('country'), seats: $('seats'), owners: $('owners'),
+    pts: $('pts'), condition: $('condition'), color: $('color'),
+    priceMin: $('priceMin'), priceMax: $('priceMax'),
+    yearMin: $('yearMin'), yearMax: $('yearMax'), mileageMax: $('mileageMax'),
+    sort: $('sort'),
     reset: $('reset'), loadMore: $('loadMore'),
     openFilters: $('openFilters'), filtersPopup: $('filtersPopup'), filtersCount: $('filtersCount'),
   };
+
+  // Поля-фильтры по типу — для удобства итерации (reset, badge, события).
+  const SELECT_FILTERS = ['city','brand','body','transmission','drive','wheel','country','seats','owners','pts','condition','color'];
+  const NUMBER_FILTERS = ['priceMin','priceMax','yearMin','yearMax','mileageMax'];
 
   let cars = [];
   let filtered = [];
@@ -23,7 +35,11 @@
         for (let i = 0; i < h.length; i++) o[h[i]] = row[i] === undefined ? '' : row[i];
         return o;
       });
-      els.status.textContent = 'Каталог: ' + cars.length + ' авто';
+      // дополним country из маппинга по марке (в данных пусто)
+      cars.forEach(c => { if (!c.country) c.country = COUNTRY_BY_BRAND[c.brand] || ''; });
+      const status = 'Каталог: ' + cars.length + ' авто';
+      els.status.textContent = status;
+      els.statusMobile.textContent = status;
       populateSelects();
       apply();
     })
@@ -31,15 +47,26 @@
 
   // ============ ФИЛЬТРЫ-СЕЛЕКТЫ ============
   function populateSelects() {
-    const fill = (sel, values) => {
-      const sorted = Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru'));
+    const fillText = (sel, values) => {
+      const sorted = Array.from(new Set(values.filter(Boolean).map(String))).sort((a, b) => a.localeCompare(b, 'ru'));
       sorted.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
     };
-    fill(els.city, cars.map(c => c.city));
-    fill(els.brand, cars.map(c => c.brand));
-    fill(els.body, cars.map(c => c.body));
-    fill(els.transmission, cars.map(c => c.transmission));
-    fill(els.drive, cars.map(c => c.drive));
+    const fillNum = (sel, values, suffix) => {
+      const sorted = Array.from(new Set(values.filter(v => v !== '' && v != null).map(Number).filter(Number.isFinite))).sort((a, b) => a - b);
+      sorted.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v + (suffix || ''); sel.appendChild(o); });
+    };
+    fillText(els.city, cars.map(c => c.city));
+    fillText(els.brand, cars.map(c => c.brand));
+    fillText(els.body, cars.map(c => c.body));
+    fillText(els.transmission, cars.map(c => c.transmission));
+    fillText(els.drive, cars.map(c => c.drive));
+    fillText(els.wheel, cars.map(c => c.wheel));
+    fillText(els.country, cars.map(c => c.country));
+    fillText(els.condition, cars.map(c => c.condition));
+    fillText(els.color, cars.map(c => c.color));
+    fillText(els.pts, cars.map(c => c.pts));
+    fillNum(els.seats, cars.map(c => c.seats));
+    fillNum(els.owners, cars.map(c => c.owners));
   }
 
   // ============ ПРИМЕНЕНИЕ ============
@@ -50,15 +77,39 @@
     // селекты накладываются поверх распарсенного запроса
     const sel = {
       city: els.city.value, brand: els.brand.value, body: els.body.value,
-      tr: els.transmission.value, dr: els.drive.value,
+      transmission: els.transmission.value, drive: els.drive.value, wheel: els.wheel.value,
+      country: els.country.value, condition: els.condition.value, color: els.color.value,
+      pts: els.pts.value, seats: els.seats.value, owners: els.owners.value,
+    };
+    const numFilters = {
+      priceMin: Number(els.priceMin.value) || 0,
+      priceMax: Number(els.priceMax.value) || 0,
+      yearMin:  Number(els.yearMin.value)  || 0,
+      yearMax:  Number(els.yearMax.value)  || 0,
+      mileageMax: Number(els.mileageMax.value) || 0,
     };
 
     filtered = cars.filter(c => {
       if (sel.city  && c.city  !== sel.city)  return false;
       if (sel.brand && c.brand !== sel.brand) return false;
       if (sel.body  && c.body  !== sel.body)  return false;
-      if (sel.tr    && c.transmission !== sel.tr) return false;
-      if (sel.dr    && c.drive !== sel.dr)    return false;
+      if (sel.transmission && c.transmission !== sel.transmission) return false;
+      if (sel.drive && c.drive !== sel.drive) return false;
+      if (sel.wheel && c.wheel !== sel.wheel) return false;
+      if (sel.country && c.country !== sel.country) return false;
+      if (sel.condition && c.condition !== sel.condition) return false;
+      if (sel.color && c.color !== sel.color) return false;
+      if (sel.pts && c.pts !== sel.pts) return false;
+      if (sel.seats && String(c.seats) !== sel.seats) return false;
+      if (sel.owners && String(c.owners) !== sel.owners) return false;
+      const price = Number(c.price);
+      if (numFilters.priceMin && !(price >= numFilters.priceMin)) return false;
+      if (numFilters.priceMax && !(price <= numFilters.priceMax)) return false;
+      const year = Number(c.year);
+      if (numFilters.yearMin && !(year >= numFilters.yearMin)) return false;
+      if (numFilters.yearMax && !(year <= numFilters.yearMax)) return false;
+      const mileage = Number(c.mileage);
+      if (numFilters.mileageMax && !(mileage <= numFilters.mileageMax)) return false;
       if (parsed && !window.AutoSearch.match(c, parsed)) return false;
       return true;
     });
@@ -83,7 +134,8 @@
   }
 
   function updateFiltersBadge() {
-    const active = ['city','brand','body','transmission','drive'].filter(k => els[k].value).length;
+    const active = SELECT_FILTERS.filter(k => els[k].value).length
+                 + NUMBER_FILTERS.filter(k => els[k].value).length;
     if (active) {
       els.filtersCount.textContent = active;
       els.filtersCount.hidden = false;
@@ -107,6 +159,7 @@
       els.grid.innerHTML = '<div class="empty">Ничего не найдено по фильтрам.</div>';
       els.loadMore.hidden = true;
       els.counter.textContent = '0 из 0';
+      els.counterMobile.textContent = '0 из 0';
       return;
     }
     const slice = filtered.slice(shown, shown + pageSize);
@@ -115,7 +168,9 @@
     els.grid.appendChild(frag);
     shown += slice.length;
     els.loadMore.hidden = shown >= filtered.length;
-    els.counter.textContent = shown + ' из ' + filtered.length;
+    const ct = shown + ' из ' + filtered.length;
+    els.counter.textContent = ct;
+    els.counterMobile.textContent = ct;
   }
 
   // ============ КАРТОЧКА (16:9) ============
@@ -219,13 +274,15 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 
   // ============ СОБЫТИЯ ============
-  ['q','city','brand','body','transmission','drive','sort'].forEach(k => {
-    els[k].addEventListener(k === 'q' ? 'input' : 'change', apply);
-  });
+  els.q.addEventListener('input', apply);
+  SELECT_FILTERS.concat('sort').forEach(k => els[k].addEventListener('change', apply));
+  NUMBER_FILTERS.forEach(k => els[k].addEventListener('input', apply));
   els.reset.addEventListener('click', () => {
-    els.q.value = ''; els.city.value = ''; els.brand.value = '';
-    els.body.value = ''; els.transmission.value = ''; els.drive.value = '';
-    els.sort.value = 'price_asc'; apply();
+    els.q.value = '';
+    SELECT_FILTERS.forEach(k => { els[k].value = ''; });
+    NUMBER_FILTERS.forEach(k => { els[k].value = ''; });
+    els.sort.value = 'price_asc';
+    apply();
   });
   els.loadMore.addEventListener('click', render);
 
