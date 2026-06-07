@@ -124,21 +124,44 @@
     color:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>',
   };
 
-  // короткие лейблы — чтобы не резались при ужатии. Полная форма доступна в title.
+  // Однострочный tile: [icon] ЛЕЙБЛ значение. Лейбл слева, значение справа,
+  // приоритет показа значению (лейбл сжимается first).
   function tile(icon, label, full, value) {
     if (!value && value !== 0) return '';
     return '<div class="tile" title="' + esc(full) + ': ' + esc(String(value)) + '">' +
       '<span class="tile__icon">' + ICONS[icon] + '</span>' +
-      '<span class="tile__text">' +
-        '<span class="tile__label">' + label + '</span>' +
-        '<span class="tile__value">' + esc(String(value)) + '</span>' +
-      '</span></div>';
+      '<span class="tile__label">' + label + '</span>' +
+      '<span class="tile__value">' + esc(String(value)) + '</span>' +
+    '</div>';
   }
+
+  // Страна марки — статический маппинг (в данных пусто, заполняем здесь).
+  const COUNTRY_BY_BRAND = {
+    Toyota:'Япония', Nissan:'Япония', Honda:'Япония', Mazda:'Япония', Mitsubishi:'Япония',
+    Subaru:'Япония', Suzuki:'Япония', Lexus:'Япония', Infiniti:'Япония', Daihatsu:'Япония',
+    Acura:'Япония', Isuzu:'Япония',
+    'Mercedes-Benz':'Германия', BMW:'Германия', Audi:'Германия', Volkswagen:'Германия',
+    Porsche:'Германия', Opel:'Германия', Smart:'Германия', MAN:'Германия',
+    Lada:'Россия', 'ВАЗ':'Россия', GAZ:'Россия', UAZ:'Россия', Moskvich:'Россия',
+    Москвич:'Россия', Aurus:'Россия',
+    Renault:'Франция', Peugeot:'Франция', Citroen:'Франция', Bugatti:'Франция', DS:'Франция',
+    Hyundai:'Корея', Kia:'Корея', Genesis:'Корея', SsangYong:'Корея', Daewoo:'Корея',
+    Chery:'Китай', Geely:'Китай', Haval:'Китай', GAC:'Китай', BYD:'Китай', Changan:'Китай',
+    Jetour:'Китай', Lifan:'Китай', FAW:'Китай', Tank:'Китай', Voyah:'Китай', Zeekr:'Китай',
+    MG:'Китай', Exeed:'Китай', Brilliance:'Китай', Dongfeng:'Китай', Omoda:'Китай',
+    JAC:'Китай', Hongqi:'Китай', Foton:'Китай', Skywell:'Китай', Xpeng:'Китай', LiXiang:'Китай',
+    Ford:'США', Chevrolet:'США', Cadillac:'США', Chrysler:'США', Dodge:'США', Jeep:'США',
+    Tesla:'США', Lincoln:'США', GMC:'США', Buick:'США', Hummer:'США', Ram:'США',
+    Volvo:'Швеция', Saab:'Швеция', Skoda:'Чехия',
+    Fiat:'Италия', 'Alfa Romeo':'Италия', Ferrari:'Италия', Lamborghini:'Италия', Maserati:'Италия',
+    'Land Rover':'Великобритания', Jaguar:'Великобритания', Mini:'Великобритания',
+    Bentley:'Великобритания', 'Aston Martin':'Великобритания', 'Rolls-Royce':'Великобритания',
+    SEAT:'Испания', Cupra:'Испания',
+  };
 
   function card(c) {
     const photo = c.image_url || '';
-    const engineLine = [c.engine, c.transmission].filter(Boolean).join(' · ');
-    const bodyLine   = [c.body, c.drive].filter(Boolean).join(' · ');
+    const country = c.country || COUNTRY_BY_BRAND[c.brand] || '';
     const el = document.createElement('a');
     el.className = 'card';
     el.href = c.url || '#';
@@ -155,15 +178,20 @@
           '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
         '</div>' +
         '<div class="tiles">' +
-          tile('year',   'ГОД',    'Год выпуска',     c.year) +
-          tile('miles',  'ПРОБЕГ', 'Пробег',          fmtMileage(c.mileage)) +
-          tile('engine', 'ДВИГ.',  'Двигатель и КПП', engineLine) +
-          tile('body',   'КУЗОВ',  'Кузов и привод',  bodyLine) +
-          tile('trim',   'КОМПЛ.', 'Комплектация',    c.trim) +
-          tile('seats',  'МЕСТ',   'Кол-во мест',     c.seats) +
-          tile('owner',  'ВЛАД.',  'Владельцы',       c.owners) +
-          tile('state',  'СОСТ.',  'Состояние',       c.condition) +
-          tile('color',  'ЦВЕТ',   'Цвет',            c.color) +
+          tile('year',   'ГОД',    'Год выпуска',  c.year) +
+          tile('miles',  'ПРОБЕГ', 'Пробег',       fmtMileage(c.mileage)) +
+          tile('engine', 'ДВИГ.',  'Двигатель',    c.engine) +
+          tile('engine', 'КПП',    'Коробка',      c.transmission) +
+          tile('body',   'КУЗОВ',  'Тип кузова',   c.body) +
+          tile('body',   'ПРИВОД', 'Привод',       c.drive) +
+          tile('trim',   'КОМПЛ.', 'Комплектация', c.trim) +
+          tile('seats',  'МЕСТ',   'Кол-во мест',  c.seats) +
+          tile('owner',  'ВЛАД.',  'Владельцы',    c.owners) +
+          tile('state',  'СОСТ.',  'Состояние',    c.condition) +
+          tile('pts',    'ПТС',    'ПТС',          c.pts) +
+          tile('flag',   'СТРАНА', 'Страна марки', country) +
+          tile('wheel',  'РУЛЬ',   'Руль',         c.wheel) +
+          tile('color',  'ЦВЕТ',   'Цвет',         c.color) +
         '</div>' +
       '</div>';
     return el;

@@ -47,17 +47,19 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 /* грид: 4-6 карточек на 1920px (minmax 300px), на мобиле — 1 в ряд */
 .grid {
   display: grid; gap: 12px; padding: 14px 18px;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
 }
 @media (max-width: 600px) { .grid { grid-template-columns: 1fr; padding: 12px; gap: 10px; } }
 
 .card {
   display: grid; grid-template-columns: 38% 1fr;
   background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  /* приоритет — поместить все 14 тайлов; высота подстраивается, ряд грида сам выравнивает */
+  min-height: 0;
   aspect-ratio: 19 / 9;
   text-decoration: none; color: inherit;
   transition: transform .12s, border-color .12s;
-  container-type: inline-size;   /* для @container запросов внутри карточки */
+  container-type: inline-size;
 }
 .card:hover { transform: translateY(-2px); border-color: var(--accent); }
 
@@ -92,52 +94,52 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.
 }
 .card__price { font-size: 14px; font-weight: 700; color: #34c759; white-space: nowrap; }
 
-.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; flex: 1; align-content: start; }
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; flex: 1; align-content: start; }
 .tile {
-  display: flex; align-items: center; gap: 5px;
-  background: var(--panel-2); border-radius: 6px; padding: 4px 6px;
-  min-width: 0;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--panel-2); border-radius: 5px; padding: 3px 7px;
+  min-width: 0; min-height: 22px;
 }
-.tile__icon { flex: none; width: 13px; height: 13px; color: var(--muted); display: flex; }
+.tile__icon { flex: none; width: 12px; height: 12px; color: var(--muted); display: flex; }
 .tile__icon svg { width: 100%; height: 100%; }
-.tile__text { min-width: 0; flex: 1; display: flex; flex-direction: column; line-height: 1.1; }
 .tile__label {
-  font-size: 8px; text-transform: uppercase; letter-spacing: .02em; color: var(--muted); line-height: 1.05;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: .02em; color: var(--muted);
+  flex: none; white-space: nowrap;
 }
 .tile__value {
-  font-size: 10px; font-weight: 600; color: var(--text); line-height: 1.15; margin-top: 1px;
+  font-size: 10.5px; font-weight: 600; color: var(--text);
+  flex: 1; min-width: 0; text-align: right;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .card__foot { display: none; }
 
 /* Container queries: масштабируем содержимое от ширины самой карточки */
-@container (max-width: 360px) {
-  .card { aspect-ratio: 18 / 9; }
-  .tile { padding: 3px 5px; gap: 3px; }
-  .tile__icon { display: none; }            /* при совсем узком убираем иконку — больше места под текст */
-  .tile__label { font-size: 7px; }
+@container (max-width: 400px) {
+  .card { aspect-ratio: 17 / 9; }   /* чуть выше, чтобы 14 тайлов влезли */
+  .tile { padding: 2px 5px; gap: 4px; min-height: 20px; }
+  .tile__icon { display: none; }     /* совсем узкие — без иконок */
+  .tile__label { font-size: 8px; }
   .tile__value { font-size: 9.5px; }
   .card__title { font-size: 12px; }
-  .card__price { font-size: 12.5px; }
+  .card__price { font-size: 13px; }
   .card__body { padding: 8px 10px; gap: 5px; }
 }
-@container (min-width: 480px) {
+@container (min-width: 520px) {
   .card__title { font-size: 14px; }
   .card__price { font-size: 16px; }
-  .tile__label { font-size: 9px; }
+  .tile__label { font-size: 9.5px; }
   .tile__value { font-size: 11.5px; }
-  .tile__icon { width: 15px; height: 15px; }
-  .tile { padding: 5px 7px; }
+  .tile__icon { width: 13px; height: 13px; }
+  .tile { padding: 4px 8px; min-height: 24px; }
 }
-@container (min-width: 620px) {
+@container (min-width: 680px) {
   .card__title { font-size: 15px; }
   .card__price { font-size: 17px; }
   .tile__label { font-size: 10px; }
-  .tile__value { font-size: 12.5px; }
-  .tile__icon { width: 16px; height: 16px; }
-  .tile { padding: 6px 8px; gap: 7px; }
+  .tile__value { font-size: 12px; }
+  .tile__icon { width: 14px; height: 14px; }
+  .tile { padding: 5px 9px; min-height: 26px; }
   .card__body { padding: 12px 14px; gap: 8px; }
 }
 
