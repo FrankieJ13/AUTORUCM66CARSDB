@@ -205,7 +205,26 @@
     if (counter) counter.textContent = (idx + 1) + '/' + photos.length;
   });
 
-  // стрелки также по клавишам ← → когда курсор над карточкой (опционально, для десктопа)
+  // предзагрузка всех фоток карточки при первом наведении — далее листание мгновенное
+  els.grid.addEventListener('mouseenter', (e) => {
+    const card = e.target.closest && e.target.closest('.card');
+    if (!card || card.dataset.preloaded === '1') return;
+    const img = card.querySelector('img');
+    if (!img) return;
+    const photos = (img.dataset.photos || '').split('|').filter(Boolean);
+    if (photos.length < 2) { card.dataset.preloaded = '1'; return; }
+    card.dataset.preloaded = '1';
+    // последовательная предзагрузка: следующая стартует, когда предыдущая загрузилась
+    let i = 1;
+    const loadNext = () => {
+      if (i >= photos.length) return;
+      const im = new Image();
+      im.onload = im.onerror = () => { i++; loadNext(); };
+      im.src = photos[i];
+    };
+    loadNext();
+  }, true);   // capture-фаза: mouseenter не всплывает
+
   els.grid.addEventListener('keydown', (e) => {
     const media = e.target.closest('.card__media');
     if (!media) return;
