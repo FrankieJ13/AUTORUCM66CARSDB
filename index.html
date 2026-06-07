@@ -19,7 +19,7 @@
     </header>
 
     <section class="filters">
-      <input id="q" type="search" placeholder="Поиск: марка, модель, город, кузов…" autocomplete="off">
+      <input id="q" type="search" placeholder='Запрос: "фольц тигуан 5 мест до 1.2 млн", "киа карнивал 7 мест от 3 млн"…' autocomplete="off">
       <select id="city"><option value="">Все города</option></select>
       <select id="brand"><option value="">Все марки</option></select>
       <select id="body"><option value="">Все кузова</option></select>
@@ -36,11 +36,15 @@
       <button id="reset" type="button">Сброс</button>
     </section>
 
+    <div class="chips" id="chips"></div>
+
     <main id="grid" class="grid"></main>
 
     <button id="loadMore" class="load-more" hidden>Показать ещё</button>
 
     <script src="js/config.js"></script>
+    <script src="js/search-dictionary.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

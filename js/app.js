@@ -2,7 +2,7 @@
   const cfg = window.AUTORU_CONFIG || {};
   const $ = (id) => document.getElementById(id);
   const els = {
-    status: $('status'), counter: $('counter'), grid: $('grid'),
+    status: $('status'), counter: $('counter'), grid: $('grid'), chips: $('chips'),
     q: $('q'), city: $('city'), brand: $('brand'), body: $('body'),
     transmission: $('transmission'), drive: $('drive'), sort: $('sort'),
     reset: $('reset'), loadMore: $('loadMore'),
@@ -50,7 +50,7 @@
     });
   }
 
-  // ============ ФИЛЬТРЫ ============
+  // ============ ФИЛЬТРЫ-СЕЛЕКТЫ ============
   function populateSelects() {
     const fill = (sel, values) => {
       const sorted = Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'ru'));
@@ -63,24 +63,28 @@
     fill(els.drive, cars.map(c => c.drive));
   }
 
+  // ============ ПРИМЕНЕНИЕ ============
   function apply() {
-    const q = (els.q.value || '').trim().toLowerCase();
-    const city = els.city.value, brand = els.brand.value, body = els.body.value;
-    const tr = els.transmission.value, dr = els.drive.value;
+    const rawQ = (els.q.value || '').trim();
+    const parsed = rawQ && window.AutoSearch ? window.AutoSearch.parse(rawQ) : null;
+
+    // селекты накладываются поверх распарсенного запроса
+    const sel = {
+      city: els.city.value, brand: els.brand.value, body: els.body.value,
+      tr: els.transmission.value, dr: els.drive.value,
+    };
 
     filtered = cars.filter(c => {
-      if (city && c.city !== city) return false;
-      if (brand && c.brand !== brand) return false;
-      if (body && c.body !== body) return false;
-      if (tr && c.transmission !== tr) return false;
-      if (dr && c.drive !== dr) return false;
-      if (q) {
-        const hay = (c.title + ' ' + c.brand + ' ' + c.model + ' ' + c.city + ' ' + c.body + ' ' + c.color + ' ' + c.trim).toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
+      if (sel.city  && c.city  !== sel.city)  return false;
+      if (sel.brand && c.brand !== sel.brand) return false;
+      if (sel.body  && c.body  !== sel.body)  return false;
+      if (sel.tr    && c.transmission !== sel.tr) return false;
+      if (sel.dr    && c.drive !== sel.dr)    return false;
+      if (parsed && !window.AutoSearch.match(c, parsed)) return false;
       return true;
     });
 
+    // сортировка
     const s = els.sort.value;
     filtered.sort((a, b) => {
       if (s === 'price_asc')    return num(a.price) - num(b.price);
@@ -92,9 +96,19 @@
       return 0;
     });
 
+    renderChips(parsed);
     shown = 0;
     els.grid.innerHTML = '';
     render();
+  }
+
+  function renderChips(parsed) {
+    if (!parsed) { els.chips.innerHTML = ''; return; }
+    const chips = window.AutoSearch.chips(parsed);
+    if (parsed.free) chips.push(['+', parsed.free]);
+    els.chips.innerHTML = chips.map(([k, v]) =>
+      `<span class="chip">${k}: <strong>${esc(String(v))}</strong></span>`
+    ).join('');
   }
 
   function render() {
@@ -135,6 +149,7 @@
           spec('Привод', c.drive) +
           spec('Кузов', c.body) +
           spec('Цвет', c.color) +
+          spec('Мест', c.seats) +
           spec('Комплектация', c.trim) +
           spec('ПТС', c.pts) +
           spec('Владельцев', c.owners) +
