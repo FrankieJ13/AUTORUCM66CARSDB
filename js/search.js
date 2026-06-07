@@ -167,24 +167,47 @@ window.AutoSearch = (function () {
   }
 
   const aliasIdx = buildAliasMatchers();
+  // Список одно-словных ключей для префиксного поиска: ["карнивал", "carnival", ...]
+  const singleWordKeys = Array.from(aliasIdx.keys()).filter(k => !k.includes(" "));
 
   function findAliasMatches(q) {
     const tokens = normalize(q).split(" ").filter(Boolean);
     const used = new Array(tokens.length).fill(false);
     const found = { brand: [], model: [], city: [], body: [], transmission: [], drive: [], fuel: [], color: [] };
-    // bigram-first (модели типа "ц 30"), потом одиночные токены
+
+    // 1) точные матчи: bigram → unigram
     for (let n = 2; n >= 1; n--) {
       for (let i = 0; i + n <= tokens.length; i++) {
         if (used.slice(i, i + n).some(Boolean)) continue;
         const phrase = tokens.slice(i, i + n).join(" ");
         const hits = aliasIdx.get(phrase);
         if (!hits) continue;
-        hits.forEach(h => {
-          if (!found[h.type].includes(h.name)) found[h.type].push(h.name);
-        });
+        hits.forEach(h => { if (!found[h.type].includes(h.name)) found[h.type].push(h.name); });
         for (let j = i; j < i + n; j++) used[j] = true;
       }
     }
+
+    // 2) префиксное угадывание: если оставшийся токен >= 2 символов и
+    //    есть только одна уникальная цель (type+name) по префиксу — применяем.
+    for (let i = 0; i < tokens.length; i++) {
+      if (used[i]) continue;
+      const t = tokens[i];
+      if (t.length < 2) continue;
+      const targets = new Map();   // key: type+name
+      for (const key of singleWordKeys) {
+        if (!key.startsWith(t)) continue;
+        for (const hit of aliasIdx.get(key)) {
+          targets.set(hit.type + "::" + hit.name, hit);
+        }
+        if (targets.size > 3) break; // слишком неоднозначно, бросаем
+      }
+      if (targets.size === 1) {
+        const h = targets.values().next().value;
+        if (!found[h.type].includes(h.name)) found[h.type].push(h.name);
+        used[i] = true;
+      }
+    }
+
     const rest = tokens.filter((_, i) => !used[i]).join(" ");
     return { found, rest };
   }
