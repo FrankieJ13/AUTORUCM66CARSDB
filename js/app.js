@@ -191,12 +191,11 @@
     color:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>',
   };
 
-  // Плитка: иконка | лейбл | значение (3 колонки). Лейбл слева, значение справа.
+  // Плитка: иконка | значение. Лейбл переезжает в title (тултип) — иконки достаточно.
   function tile(icon, label, value) {
     if (!value && value !== 0) return '';
     return '<div class="tile" title="' + esc(label) + ': ' + esc(String(value)) + '">' +
       '<span class="tile__icon">' + ICONS[icon] + '</span>' +
-      '<span class="tile__label">' + esc(label) + '</span>' +
       '<span class="tile__value">' + esc(String(value)) + '</span>' +
     '</div>';
   }
