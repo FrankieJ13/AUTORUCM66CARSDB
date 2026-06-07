@@ -124,9 +124,15 @@
     color:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>',
   };
 
-  function tile(icon, label, value) {
+  // короткие лейблы — чтобы не резались при ужатии. Полная форма доступна в title.
+  function tile(icon, label, full, value) {
     if (!value && value !== 0) return '';
-    return '<div class="tile"><span class="tile__icon">' + ICONS[icon] + '</span><div><div class="tile__label">' + label + '</div><div class="tile__value">' + esc(String(value)) + '</div></div></div>';
+    return '<div class="tile" title="' + esc(full) + ': ' + esc(String(value)) + '">' +
+      '<span class="tile__icon">' + ICONS[icon] + '</span>' +
+      '<span class="tile__text">' +
+        '<span class="tile__label">' + label + '</span>' +
+        '<span class="tile__value">' + esc(String(value)) + '</span>' +
+      '</span></div>';
   }
 
   function card(c) {
@@ -149,15 +155,15 @@
           '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
         '</div>' +
         '<div class="tiles">' +
-          tile('year',   'Год',           c.year) +
-          tile('miles',  'Пробег',        fmtMileage(c.mileage)) +
-          tile('engine', 'Двигатель',     engineLine) +
-          tile('body',   'Кузов/привод',  bodyLine) +
-          tile('trim',   'Комплектация',  c.trim) +
-          tile('seats',  'Мест',          c.seats) +
-          tile('owner',  'Владельцы',     c.owners) +
-          tile('state',  'Состояние',     c.condition) +
-          tile('color',  'Цвет',          c.color) +
+          tile('year',   'ГОД',    'Год выпуска',     c.year) +
+          tile('miles',  'ПРОБЕГ', 'Пробег',          fmtMileage(c.mileage)) +
+          tile('engine', 'ДВИГ.',  'Двигатель и КПП', engineLine) +
+          tile('body',   'КУЗОВ',  'Кузов и привод',  bodyLine) +
+          tile('trim',   'КОМПЛ.', 'Комплектация',    c.trim) +
+          tile('seats',  'МЕСТ',   'Кол-во мест',     c.seats) +
+          tile('owner',  'ВЛАД.',  'Владельцы',       c.owners) +
+          tile('state',  'СОСТ.',  'Состояние',       c.condition) +
+          tile('color',  'ЦВЕТ',   'Цвет',            c.color) +
         '</div>' +
       '</div>';
     return el;
