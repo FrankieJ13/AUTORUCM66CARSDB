@@ -126,7 +126,8 @@ def find_balanced_end(s):
     return -1
 
 
-OFFER_RE = re.compile(r'\{"availability":"[A-Z_]+","color_hex":')
+# Сигнатура шире: некоторые офферы без color_hex. Дальше отсеиваем по saleId+vehicle_info.
+OFFER_RE = re.compile(r'\{"availability":"[A-Z_]+"')
 
 
 def parse_listing_state(html):
@@ -163,7 +164,8 @@ def parse_listing_state(html):
         except json.JSONDecodeError:
             continue
         sid = o.get("saleId")
-        if not sid or sid in seen:
+        # фильтр: настоящий оффер всегда имеет saleId и vehicle_info
+        if not sid or "vehicle_info" not in o or sid in seen:
             continue
         seen.add(sid)
         offers.append(o)
@@ -242,12 +244,29 @@ def offer_to_row(o, city):
         "body": (vi.get("configuration") or {}).get("human_name", ""),
         "color": color,
         "image_url": image_url,
-        "updated_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
     }
 
 
 MAX_PAGES_UNKNOWN = 3
-MAX_CONSECUTIVE_ERRORS = 3
+MAX_CONSECUTIVE_ERRORS = 5
+PAGE_RETRIES = 2          # сколько раз перепробовать страницу при no RIS chunks
+RETRY_DELAY = 3.0
+
+
+def fetch_page_with_retry(session, url, prime, attempts):
+    last = None
+    for i in range(attempts):
+        try:
+            html = fetch_html(session, url, prime=prime)
+            state = parse_listing_state(html)
+            return state
+        except Exception as e:
+            last = e
+            if i < attempts - 1:
+                time.sleep(RETRY_DELAY)
+    raise last
+
 
 def scrape_city(opener, city, base_url):
     rows = []
@@ -266,9 +285,8 @@ def scrape_city(opener, city, base_url):
             break
         url = base_url if page == 1 else base_url + f"?page={page}"
         try:
-            html = fetch_html(opener, url, prime=not primed)
+            state = fetch_page_with_retry(opener, url, prime=not primed, attempts=PAGE_RETRIES + 1)
             primed = True
-            state = parse_listing_state(html)
             listing = state["listing"]["data"]
             if total_pages is None:
                 total_pages = (listing.get("pagination") or {}).get("total_page_count") or 1
