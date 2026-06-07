@@ -130,13 +130,17 @@
 
   // ============ КАРТОЧКА ============
   function card(c) {
-    const photo = (c.image_url || '').split('|')[0] || '';
+    const photos = (c.image_url || '').split('|').filter(Boolean);
     const el = document.createElement('article');
     el.className = 'card';
+    const hasMany = photos.length > 1;
     el.innerHTML =
-      '<div class="card__media">' +
-        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(c.title) + '">' : '') +
+      '<div class="card__media" data-idx="0" data-total="' + photos.length + '">' +
+        (photos[0] ? '<img loading="lazy" src="' + esc(photos[0]) + '" alt="' + esc(c.title) + '" data-photos="' + esc(photos.join('|')) + '">' : '') +
         (c.city ? '<span class="card__city">' + esc(c.city) + '</span>' : '') +
+        (hasMany ? '<button class="card__nav card__nav--prev" data-act="prev" aria-label="Назад">‹</button>' : '') +
+        (hasMany ? '<button class="card__nav card__nav--next" data-act="next" aria-label="Вперёд">›</button>' : '') +
+        (hasMany ? '<span class="card__count" data-counter>1/' + photos.length + '</span>' : '') +
       '</div>' +
       '<div class="card__body">' +
         '<div class="card__title"><a href="' + esc(c.url) + '" target="_blank" rel="noopener">' + esc(c.title || (c.brand + ' ' + c.model)) + '</a></div>' +
@@ -181,4 +185,33 @@
     els.sort.value = 'price_asc'; apply();
   });
   els.loadMore.addEventListener('click', render);
+
+  // ============ ГАЛЕРЕЯ ВНУТРИ КАРТОЧКИ ============
+  els.grid.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    e.preventDefault();
+    const media = btn.closest('.card__media');
+    if (!media) return;
+    const img = media.querySelector('img');
+    if (!img) return;
+    const photos = (img.dataset.photos || '').split('|').filter(Boolean);
+    if (photos.length < 2) return;
+    let idx = Number(media.dataset.idx) || 0;
+    idx = btn.dataset.act === 'next' ? (idx + 1) % photos.length : (idx - 1 + photos.length) % photos.length;
+    media.dataset.idx = idx;
+    img.src = photos[idx];
+    const counter = media.querySelector('[data-counter]');
+    if (counter) counter.textContent = (idx + 1) + '/' + photos.length;
+  });
+
+  // стрелки также по клавишам ← → когда курсор над карточкой (опционально, для десктопа)
+  els.grid.addEventListener('keydown', (e) => {
+    const media = e.target.closest('.card__media');
+    if (!media) return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const btn = media.querySelector(e.key === 'ArrowLeft' ? '[data-act="prev"]' : '[data-act="next"]');
+      if (btn) btn.click();
+    }
+  });
 })();
