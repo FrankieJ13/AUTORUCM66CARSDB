@@ -6,6 +6,7 @@
     q: $('q'), city: $('city'), brand: $('brand'), body: $('body'),
     transmission: $('transmission'), drive: $('drive'), sort: $('sort'),
     reset: $('reset'), loadMore: $('loadMore'),
+    openFilters: $('openFilters'), filtersPopup: $('filtersPopup'), filtersCount: $('filtersCount'),
   };
 
   let cars = [];
@@ -75,9 +76,20 @@
     });
 
     renderChips(parsed);
+    updateFiltersBadge();
     shown = 0;
     els.grid.innerHTML = '';
     render();
+  }
+
+  function updateFiltersBadge() {
+    const active = ['city','brand','body','transmission','drive'].filter(k => els[k].value).length;
+    if (active) {
+      els.filtersCount.textContent = active;
+      els.filtersCount.hidden = false;
+    } else {
+      els.filtersCount.hidden = true;
+    }
   }
 
   function renderChips(parsed) {
@@ -124,13 +136,12 @@
     color:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>',
   };
 
-  // Однострочный tile: [icon] ЛЕЙБЛ значение. Лейбл слева, значение справа,
-  // приоритет показа значению (лейбл сжимается first).
-  function tile(icon, label, full, value) {
+  // Плитка: иконка | лейбл | значение (3 колонки). Лейбл слева, значение справа.
+  function tile(icon, label, value) {
     if (!value && value !== 0) return '';
-    return '<div class="tile" title="' + esc(full) + ': ' + esc(String(value)) + '">' +
+    return '<div class="tile" title="' + esc(label) + ': ' + esc(String(value)) + '">' +
       '<span class="tile__icon">' + ICONS[icon] + '</span>' +
-      '<span class="tile__label">' + label + '</span>' +
+      '<span class="tile__label">' + esc(label) + '</span>' +
       '<span class="tile__value">' + esc(String(value)) + '</span>' +
     '</div>';
   }
@@ -159,51 +170,47 @@
     SEAT:'Испания', Cupra:'Испания',
   };
 
+  const PIN_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+
   function card(c) {
     const photo = c.image_url || '';
     const country = c.country || COUNTRY_BY_BRAND[c.brand] || '';
-    const brand = c.brand || '';
-    // вторую строку формируем как title без префикса бренда; если title пустой — просто модель
-    const modelLine = c.title && brand && c.title.toLowerCase().startsWith(brand.toLowerCase())
-      ? c.title.slice(brand.length).trim()
-      : (c.title || c.model || '');
-    const el = document.createElement('a');
+    const title = c.title || (c.brand + ' ' + c.model).trim();
+
+    // Карточка не кликабельна целиком. Кликабельно только фото.
+    const el = document.createElement('article');
     el.className = 'card';
-    el.href = c.url || '#';
-    el.target = '_blank';
-    el.rel = 'noopener';
     el.innerHTML =
-      '<div class="card__media">' +
-        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(c.title) + '">' : '') +
-        '<div class="card__overlay">' +
-          (brand ?      '<div class="card__brand">' + esc(brand) + '</div>' : '') +
-          (modelLine ?  '<div class="card__model">' + esc(modelLine) + '</div>' : '') +
-                        '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
-        '</div>' +
-        (c.city ? '<span class="card__city">' + esc(c.city) + '</span>' : '') +
-      '</div>' +
+      '<a class="card__media" href="' + esc(c.url || '#') + '" target="_blank" rel="noopener">' +
+        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(title) + '">' : '') +
+      '</a>' +
       '<div class="card__body">' +
+        '<div class="card__head">' +
+          '<div class="card__head-left">' +
+            '<h3 class="card__title">' + esc(title) + '</h3>' +
+            '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
+          '</div>' +
+          (c.city ? '<div class="card__city">' + PIN_SVG + esc(c.city) + '</div>' : '') +
+        '</div>' +
         '<div class="tiles">' +
-          tile('year',   'ГОД',    'Год выпуска',  c.year) +
-          tile('miles',  'ПРОБЕГ', 'Пробег',       fmtMileage(c.mileage)) +
-          tile('engine', 'ДВИГ.',  'Двигатель',    c.engine) +
-          tile('engine', 'КПП',    'Коробка',      c.transmission) +
-          tile('body',   'КУЗОВ',  'Тип кузова',   c.body) +
-          tile('body',   'ПРИВОД', 'Привод',       c.drive) +
-          tile('trim',   'КОМПЛ.', 'Комплектация', c.trim) +
-          tile('seats',  'МЕСТ',   'Кол-во мест',  c.seats) +
-          tile('owner',  'ВЛАД.',  'Владельцы',    c.owners) +
-          tile('state',  'СОСТ.',  'Состояние',    c.condition) +
-          tile('pts',    'ПТС',    'ПТС',          c.pts) +
-          tile('flag',   'СТРАНА', 'Страна марки', country) +
-          tile('wheel',  'РУЛЬ',   'Руль',         c.wheel) +
-          tile('color',  'ЦВЕТ',   'Цвет',         c.color) +
+          tile('year',   'Год выпуска',      c.year) +
+          tile('flag',   'Страна',           country) +
+          tile('seats',  'Количество мест',  c.seats) +
+          tile('miles',  'Пробег',           fmtMileage(c.mileage)) +
+          tile('owner',  'Владельцы',        c.owners) +
+          tile('state',  'Состояние',        c.condition) +
+          tile('pts',    'ПТС',              c.pts) +
+          tile('trim',   'Комплектация',     c.trim) +
+          tile('engine', 'Двигатель',        c.engine) +
+          tile('engine', 'Коробка',          c.transmission) +
+          tile('body',   'Привод',           c.drive) +
+          tile('wheel',  'Руль',             c.wheel) +
+          tile('body',   'Кузов',            c.body) +
+          tile('color',  'Цвет',             c.color) +
         '</div>' +
       '</div>';
     return el;
   }
-
-  // удаляем неиспользуемый класс .card__head, оставшийся в CSS — иначе пусто-наследует стили
 
   // ============ УТИЛИТЫ ============
   function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
@@ -221,4 +228,19 @@
     els.sort.value = 'price_asc'; apply();
   });
   els.loadMore.addEventListener('click', render);
+
+  // ============ ПОПАП ФИЛЬТРОВ ============
+  els.openFilters.addEventListener('click', (e) => {
+    e.stopPropagation();
+    els.filtersPopup.hidden = !els.filtersPopup.hidden;
+  });
+  document.addEventListener('click', (e) => {
+    if (els.filtersPopup.hidden) return;
+    if (e.target === els.openFilters || els.openFilters.contains(e.target)) return;
+    if (els.filtersPopup.contains(e.target)) return;
+    els.filtersPopup.hidden = true;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') els.filtersPopup.hidden = true;
+  });
 })();
