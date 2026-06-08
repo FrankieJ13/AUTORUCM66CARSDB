@@ -224,44 +224,59 @@
     SEAT:'Испания', Cupra:'Испания',
   };
 
-  const PIN_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+  const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+
+  function splitTitle_(c) {
+    const main = (c.brand && c.model) ? (c.brand + ' ' + c.model) : (c.title || c.brand || c.model || '');
+    const fullTitle = c.title || main;
+    let sub = '';
+    if (fullTitle.toLowerCase().startsWith(main.toLowerCase())) {
+      sub = fullTitle.slice(main.length).trim();
+    }
+    // подзаголовок дополняем компоновкой движка/комплектации если есть
+    const extras = [c.trim].filter(Boolean).join(' · ');
+    if (sub && extras) sub += ' · ' + extras;
+    else if (extras) sub = extras;
+    return { main, sub };
+  }
 
   function card(c) {
     const photo = c.image_url || '';
     const country = c.country || COUNTRY_BY_BRAND[c.brand] || '';
-    const title = c.title || (c.brand + ' ' + c.model).trim();
+    const { main, sub } = splitTitle_(c);
+    const cityLine = [c.city, country].filter(Boolean).join(', ');
 
-    // Карточка не кликабельна целиком. Кликабельно только фото.
+    // Карточка НЕ кликабельна целиком. Кликабельно только фото.
     const el = document.createElement('article');
     el.className = 'card';
     el.innerHTML =
       '<a class="card__media" href="' + esc(c.url || '#') + '" target="_blank" rel="noopener">' +
-        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(title) + '">' : '') +
+        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(main) + '">' : '') +
       '</a>' +
       '<div class="card__body">' +
         '<div class="card__head">' +
           '<div class="card__head-left">' +
-            '<h3 class="card__title">' + esc(title) + '</h3>' +
-            '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
+            '<h3 class="card__title">' + esc(main) + '</h3>' +
+            (sub ? '<div class="card__subtitle">' + esc(sub) + '</div>' : '') +
           '</div>' +
-          (c.city ? '<div class="card__city">' + PIN_SVG + esc(c.city) + '</div>' : '') +
+          '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
         '</div>' +
         '<div class="tiles">' +
           tile('year',   'Год',              c.year) +
-          tile('flag',   'Страна',           country) +
-          tile('seats',  'Мест',             c.seats) +
-          tile('miles',  'Пробег',           fmtMileage(c.mileage)) +
-          tile('owner',  'Владельцы',        c.owners) +
-          tile('state',  'Состояние',        c.condition) +
-          tile('pts',    'ПТС',              c.pts) +
-          tile('trim',   'Комплектация',     c.trim) +
           tile('engine', 'Двигатель',        c.engine) +
+          tile('flag',   'Страна',           country) +
           tile('engine', 'Коробка',          c.transmission) +
+          tile('seats',  'Мест',             c.seats) +
           tile('body',   'Привод',           c.drive) +
+          tile('miles',  'Пробег',           fmtMileage(c.mileage)) +
           tile('wheel',  'Руль',             c.wheel) +
+          tile('owner',  'Владельцы',        c.owners) +
           tile('body',   'Кузов',            c.body) +
+          tile('state',  'Состояние',        c.condition) +
           tile('color',  'Цвет',             c.color) +
+          tile('pts',    'ПТС',              c.pts) +
         '</div>' +
+        (cityLine ? '<div class="card__foot"><div class="card__city">' + PIN_SVG + esc(cityLine) + '</div></div>' : '') +
       '</div>';
     return el;
   }
