@@ -138,12 +138,15 @@ body {
 .card:hover { border-color: #d4cfe8; box-shadow: 0 1px 2px rgba(28, 13, 60, .05), 0 12px 32px rgba(108, 92, 231, .12); }
 
 .card__media {
-  position: relative; background: #ece8f5; border-radius: 12px; overflow: hidden;
-  display: block; text-decoration: none;
+  position: relative; background: #f1eef9; border-radius: 12px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; min-height: 100%;
   margin-right: 14px;
 }
 .card__media img {
-  width: 100%; height: 100%; object-fit: cover; object-position: center center;
+  /* оригинальное соотношение фото — вписываем целиком, фон-плейсхолдер заполняет рамку */
+  max-width: 100%; max-height: 100%;
+  width: auto; height: auto;
   display: block;
 }
 
@@ -158,7 +161,8 @@ body {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .card__subtitle {
-  font-size: 13px; color: var(--muted); margin-top: 3px;
+  /* у нас тут модель (вторая строка заголовка) — делаем такой же по жирности, чуть меньше */
+  font-size: 17px; font-weight: 700; color: var(--text); margin-top: 2px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .card__price { font-size: 18px; font-weight: 700; color: var(--text); white-space: nowrap; text-align: right; }
@@ -200,7 +204,7 @@ body {
   .card { padding: 10px; grid-template-columns: 36% 1fr; }
   .card__media { margin-right: 10px; border-radius: 9px; }
   .card__title { font-size: 14px; }
-  .card__subtitle { font-size: 10.5px; }
+  .card__subtitle { font-size: 13px; }
   .card__price { font-size: 14px; }
   .card__city { font-size: 11px; }
   .tile__icon { width: 22px; height: 22px; border-radius: 6px; }
@@ -212,7 +216,7 @@ body {
 }
 @container (min-width: 620px) {
   .card__title { font-size: 22px; }
-  .card__subtitle { font-size: 14px; }
+  .card__subtitle { font-size: 20px; }
   .card__price { font-size: 22px; }
   .tile__icon { width: 34px; height: 34px; }
   .tile__icon svg { width: 20px; height: 20px; }

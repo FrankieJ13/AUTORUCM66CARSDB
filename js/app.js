@@ -173,22 +173,24 @@
     els.counterMobile.textContent = ct;
   }
 
-  // ============ КАРТОЧКА (16:9) ============
+  // ============ ИКОНКИ (line-style с blue→violet gradient через #iconGrad) ============
+  const S = 'fill="none" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
   const ICONS = {
-    year:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>',
-    miles:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="13" r="8"/><path d="M12 13l4-4M8 13h.01"/></svg>',
-    price:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 4h6a4 4 0 0 1 0 8H8M8 12h8M8 16h4M8 4v16"/></svg>',
-    engine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 10v6h2l2 3h6l2-3h2v-6h-2V8h-4V6h-4v2H7v2H5z"/></svg>',
-    body:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 15l2-5h14l2 5v3H3v-3z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg>',
-    trim:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.6 5.6 6 .6-4.5 4 1.3 6-5.4-3-5.4 3 1.3-6L3.4 9.2l6-.6L12 3z"/></svg>',
-    seats:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 21V9a3 3 0 0 1 3-3h2v8H7v7zM7 14h13M16 21v-7"/></svg>',
-    owner:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>',
-    state:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
-    pts:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg>',
-    flag:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 21V4M5 4h12l-3 4 3 4H5"/></svg>',
-    pin:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
-    wheel:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 4v6M4 12h6M20 12h-6M12 20v-6"/></svg>',
-    color:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"/></svg>',
+    year:   '<svg viewBox="0 0 24 24" ' + S + '><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6"/><circle cx="12" cy="14" r=".6"/><circle cx="16" cy="14" r=".6"/><circle cx="8" cy="18" r=".6"/><circle cx="12" cy="18" r=".6"/></svg>',
+    flag:   '<svg viewBox="0 0 24 24" ' + S + '><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a13 13 0 0 1 0 18M12 3a13 13 0 0 0 0 18"/></svg>',
+    seats:  '<svg viewBox="0 0 24 24" ' + S + '><path d="M8 21v-7h6l2-4V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H6"/><path d="M6 14h2v7"/></svg>',
+    miles:  '<svg viewBox="0 0 24 24" ' + S + '><circle cx="12" cy="13" r="8"/><path d="M9.5 16.5l3-3.5M7 13h.5M12 8v.5M17 13h-.5"/><circle cx="12" cy="13" r="1.2" fill="url(#iconGrad)"/></svg>',
+    owner:  '<svg viewBox="0 0 24 24" ' + S + '><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6.5 7-6.5s7 3 7 6.5"/></svg>',
+    state:  '<svg viewBox="0 0 24 24" ' + S + '><path d="M3 15l3-6h12l3 6v3H3z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg>',
+    pts:    '<svg viewBox="0 0 24 24" ' + S + '><path d="M6 3h8l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v4h4M9 13h4M9 16h6"/></svg>',
+    trim:   '<svg viewBox="0 0 24 24" ' + S + '><path d="M12 3l2.6 5.6 6 .6-4.5 4 1.3 6-5.4-3-5.4 3 1.3-6L3.4 9.2l6-.6L12 3z"/></svg>',
+    engine: '<svg viewBox="0 0 24 24" ' + S + '><path d="M4 11h2V9h3V7h6v2h2v2h2v4h-2v2h-2v2H9v-2H6v-2H4z"/><path d="M17 13h2M5 13h1"/></svg>',
+    fuel:   '<svg viewBox="0 0 24 24" ' + S + '><rect x="4" y="4" width="9" height="16" rx="1"/><path d="M4 9h9M7 7h3"/><path d="M13 11h3a2 2 0 0 1 2 2v3a1 1 0 0 0 2 0V9l-2-2"/></svg>',
+    gearbox:'<svg viewBox="0 0 24 24" ' + S + '><path d="M6 8v8M12 6v12M18 8v8"/><circle cx="6" cy="7" r="1"/><circle cx="6" cy="17" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="18" cy="7" r="1"/><circle cx="18" cy="17" r="1"/></svg>',
+    drive:  '<svg viewBox="0 0 24 24" ' + S + '><circle cx="5" cy="7" r="1.5"/><circle cx="19" cy="7" r="1.5"/><circle cx="5" cy="17" r="1.5"/><circle cx="19" cy="17" r="1.5"/><path d="M6.5 7h11M6.5 17h11M12 8.5v7"/><circle cx="12" cy="7" r="1.2"/><circle cx="12" cy="17" r="1.2"/></svg>',
+    wheel:  '<svg viewBox="0 0 24 24" ' + S + '><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 5v5M5 13c2 0 5 1.5 6 2M19 13c-2 0-5 1.5-6 2"/></svg>',
+    body:   '<svg viewBox="0 0 24 24" ' + S + '><path d="M3 15l3-5h12l3 5v3H3z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg>',
+    color:  '<svg viewBox="0 0 24 24" ' + S + '><path d="M12 3a9 9 0 0 0 0 18c1 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.8.7-1.5 1.5-1.5H16a5 5 0 0 0 5-5c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="15" cy="7.5" r="1"/><circle cx="18" cy="11" r="1"/></svg>',
   };
 
   // Плитка: иконка | значение. Лейбл переезжает в title (тултип) — иконки достаточно.
@@ -224,59 +226,72 @@
     SEAT:'Испания', Cupra:'Испания',
   };
 
-  const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+  const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
 
-  function splitTitle_(c) {
-    const main = (c.brand && c.model) ? (c.brand + ' ' + c.model) : (c.title || c.brand || c.model || '');
-    const fullTitle = c.title || main;
-    let sub = '';
-    if (fullTitle.toLowerCase().startsWith(main.toLowerCase())) {
-      sub = fullTitle.slice(main.length).trim();
-    }
-    // подзаголовок дополняем компоновкой движка/комплектации если есть
-    const extras = [c.trim].filter(Boolean).join(' · ');
-    if (sub && extras) sub += ' · ' + extras;
-    else if (extras) sub = extras;
-    return { main, sub };
-  }
+  // Адреса дилеров по городу (из тз).
+  const ADDRESS_BY_CITY = {
+    'Пермь':       'Спешилова 101а',
+    'Челябинск':   'Кузнецова 1а',
+    'Барнаул':     'Правобережный тракт 26',
+    'Новосибирск': 'Большевистская 276',
+    'Тюмень':      'Республики 254/3',
+    'Омск':        'Енисейская 18/1',
+    'Томск':       'Смирнова 5и',
+    'Красноярск':  'Караульная 47',
+    'Оренбург':    'Загородное шоссе 13/7',
+    'Кемерово':    'Тухачевского 64',
+    'Новокузнецк': 'Байдаевское шоссе 22',
+    'Сургут':      'Производственная 6',
+  };
 
   function card(c) {
     const photo = c.image_url || '';
     const country = c.country || COUNTRY_BY_BRAND[c.brand] || '';
-    const { main, sub } = splitTitle_(c);
-    const cityLine = [c.city, country].filter(Boolean).join(', ');
+    const brand = c.brand || '';
+    // строка 2 = модель + поколение (если в title есть генерация после модели)
+    let modelLine = c.model || '';
+    if (c.title && brand && modelLine) {
+      const prefix = (brand + ' ' + modelLine).toLowerCase();
+      if (c.title.toLowerCase().startsWith(prefix)) {
+        const tail = c.title.slice(prefix.length).trim();
+        if (tail) modelLine = modelLine + ' ' + tail;
+      }
+    }
+    if (!brand && !modelLine) modelLine = c.title || '';
+    const addr = ADDRESS_BY_CITY[c.city] || '';
+    const addrLine = [c.city, addr].filter(Boolean).join(', ');
 
     // Карточка НЕ кликабельна целиком. Кликабельно только фото.
     const el = document.createElement('article');
     el.className = 'card';
     el.innerHTML =
       '<a class="card__media" href="' + esc(c.url || '#') + '" target="_blank" rel="noopener">' +
-        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(main) + '">' : '') +
+        (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(brand + ' ' + modelLine) + '">' : '') +
       '</a>' +
       '<div class="card__body">' +
         '<div class="card__head">' +
           '<div class="card__head-left">' +
-            '<h3 class="card__title">' + esc(main) + '</h3>' +
-            (sub ? '<div class="card__subtitle">' + esc(sub) + '</div>' : '') +
+            (brand ?     '<h3 class="card__title">' + esc(brand) + '</h3>' : '') +
+            (modelLine ? '<div class="card__subtitle">' + esc(modelLine) + '</div>' : '') +
           '</div>' +
           '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
         '</div>' +
         '<div class="tiles">' +
-          tile('year',   'Год',              c.year) +
-          tile('engine', 'Двигатель',        c.engine) +
-          tile('flag',   'Страна',           country) +
-          tile('engine', 'Коробка',          c.transmission) +
-          tile('seats',  'Мест',             c.seats) +
-          tile('body',   'Привод',           c.drive) +
-          tile('miles',  'Пробег',           fmtMileage(c.mileage)) +
-          tile('wheel',  'Руль',             c.wheel) +
-          tile('owner',  'Владельцы',        c.owners) +
-          tile('body',   'Кузов',            c.body) +
-          tile('state',  'Состояние',        c.condition) +
-          tile('color',  'Цвет',             c.color) +
-          tile('pts',    'ПТС',              c.pts) +
+          tile('year',    'Год',         c.year) +
+          tile('engine',  'Двигатель',   c.engine) +
+          tile('flag',    'Страна',      country) +
+          tile('gearbox', 'Коробка',     c.transmission) +
+          tile('seats',   'Мест',        c.seats) +
+          tile('drive',   'Привод',      c.drive) +
+          tile('miles',   'Пробег',      fmtMileage(c.mileage)) +
+          tile('wheel',   'Руль',        c.wheel) +
+          tile('owner',   'Владельцы',   c.owners) +
+          tile('body',    'Кузов',       c.body) +
+          tile('state',   'Состояние',   c.condition) +
+          tile('color',   'Цвет',        c.color) +
+          tile('pts',     'ПТС',         c.pts) +
         '</div>' +
-        (cityLine ? '<div class="card__foot"><div class="card__city">' + PIN_SVG + esc(cityLine) + '</div></div>' : '') +
+        (addrLine ? '<div class="card__foot"><div class="card__city">' + PIN_SVG + esc(addrLine) + '</div></div>' : '') +
       '</div>';
     return el;
   }
