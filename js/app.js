@@ -317,7 +317,7 @@
         '<span class="strip-sep"></span>' +
         '<span class="strip-item">' + STRIP_SVG.wrench + 'Гарантия</span>' +
         '<span class="strip-sep"></span>' +
-        '<span class="strip-item">' + STRIP_SVG.doc + 'Правомерность</span>' +
+        '<span class="strip-item">' + STRIP_SVG.doc + 'Юридическая чистота</span>' +
       '</div>';
     return el;
   }
