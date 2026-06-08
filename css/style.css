@@ -127,8 +127,12 @@ body {
 
 /* ============ CARD ============ */
 .card {
-  display: grid; grid-template-columns: 38% 1fr; gap: 0;
-  background: var(--panel);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: 14px;
+  row-gap: 12px;
+  background: linear-gradient(45deg, #d3e5fd 0%, #fefcfa 28%, #fef6ec 56%, #ffefe8 80%, #fffaea 100%);
   border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
   padding: 14px;
   box-shadow: 0 1px 2px rgba(28, 13, 60, .04), 0 8px 24px rgba(108, 92, 231, .06);
@@ -137,20 +141,21 @@ body {
 }
 .card:hover { border-color: #d4cfe8; box-shadow: 0 1px 2px rgba(28, 13, 60, .05), 0 12px 32px rgba(108, 92, 231, .12); }
 
+/* Бокс по размеру фото: высота наследуется от строки грида (body),
+   ширина = high × natural_aspect */
 .card__media {
-  position: relative; background: #f1eef9; border-radius: 12px; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  text-decoration: none; min-height: 100%;
-  margin-right: 14px;
+  grid-row: 1; grid-column: 1;
+  border-radius: 12px; overflow: hidden;
+  display: block; text-decoration: none;
+  height: 100%;
 }
 .card__media img {
-  /* оригинальное соотношение фото — вписываем целиком, фон-плейсхолдер заполняет рамку */
-  max-width: 100%; max-height: 100%;
-  width: auto; height: auto;
   display: block;
+  height: 100%; width: auto; max-width: 100%;
+  object-fit: cover; object-position: center center;
 }
 
-.card__body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card__body { grid-row: 1; grid-column: 2; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .card__head {
   display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
   padding-bottom: 12px; border-bottom: 1px solid var(--border);
@@ -167,15 +172,19 @@ body {
 }
 .card__price { font-size: 18px; font-weight: 700; color: var(--text); white-space: nowrap; text-align: right; }
 
-.card__foot {
-  margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border);
-  display: flex; justify-content: flex-end; align-items: center;
+/* ============ STRIP (нижняя плашка с трастовыми бейджами + адрес) ============ */
+.card__strip {
+  grid-row: 2; grid-column: 1 / -1;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
 }
-.card__city {
-  display: inline-flex; align-items: center; gap: 6px;
-  color: var(--muted); font-size: 13px; white-space: nowrap;
-}
-.card__city svg { flex: none; color: var(--accent); width: 16px; height: 16px; }
+.strip-item { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text); line-height: 1.2; }
+.strip-item svg { flex: none; width: 22px; height: 22px; }
+.strip-item--push { margin-left: auto; }
+.strip-sep { width: 1px; align-self: stretch; background: var(--border); }
 
 /* ============ TILES ============ */
 .tiles {
@@ -201,18 +210,20 @@ body {
 
 /* ============ ADAPTIVE (container queries on card) ============ */
 @container (max-width: 420px) {
-  .card { padding: 10px; grid-template-columns: 36% 1fr; }
-  .card__media { margin-right: 10px; border-radius: 9px; }
+  .card { padding: 10px; column-gap: 10px; row-gap: 8px; }
+  .card__media { border-radius: 9px; }
   .card__title { font-size: 14px; }
   .card__subtitle { font-size: 13px; }
   .card__price { font-size: 14px; }
-  .card__city { font-size: 11px; }
   .tile__icon { width: 22px; height: 22px; border-radius: 6px; }
   .tile__icon svg { width: 13px; height: 13px; }
   .tile__value { font-size: 11px; }
   .tiles { gap: 5px 10px; }
   .card__head { padding-bottom: 8px; }
-  .card__foot { padding-top: 7px; }
+  .card__strip { padding: 8px 10px; gap: 10px; font-size: 11px; }
+  .strip-item { font-size: 11px; gap: 6px; }
+  .strip-item svg { width: 16px; height: 16px; }
+  .strip-sep { display: none; }
 }
 @container (min-width: 620px) {
   .card__title { font-size: 22px; }

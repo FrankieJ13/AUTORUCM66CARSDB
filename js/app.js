@@ -226,7 +226,12 @@
     SEAT:'Испания', Cupra:'Испания',
   };
 
-  const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+  const STRIP_SVG = {
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+    wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 6.5a3.5 3.5 0 0 0-3 5.3L4 20.3 5.7 22l8.5-8.5a3.5 3.5 0 1 0 1.3-7z"/><circle cx="15.5" cy="6.5" r="1.2" fill="url(#iconGrad)"/></svg>',
+    doc:    '<svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v4h4"/><path d="M8.5 14l2 2 3.5-4"/></svg>',
+    pin:    '<svg viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+  };
 
   // Адреса дилеров по городу (из тз).
   const ADDRESS_BY_CITY = {
@@ -291,7 +296,15 @@
           tile('color',   'Цвет',        c.color) +
           tile('pts',     'ПТС',         c.pts) +
         '</div>' +
-        (addrLine ? '<div class="card__foot"><div class="card__city">' + PIN_SVG + esc(addrLine) + '</div></div>' : '') +
+      '</div>' +
+      // Нижняя плашка-стрип: трастовые бейджи + адрес дилера справа
+      '<div class="card__strip">' +
+        '<span class="strip-item">' + STRIP_SVG.shield + 'Проверенный автомобиль</span>' +
+        '<span class="strip-sep"></span>' +
+        '<span class="strip-item">' + STRIP_SVG.wrench + 'Техническая проверка</span>' +
+        '<span class="strip-sep"></span>' +
+        '<span class="strip-item">' + STRIP_SVG.doc + 'Юридическая чистота</span>' +
+        (addrLine ? '<span class="strip-item strip-item--push">' + STRIP_SVG.pin + esc(addrLine) + '</span>' : '') +
       '</div>';
     return el;
   }
