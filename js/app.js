@@ -313,11 +313,11 @@
       '</div>' +
       // Нижняя плашка-стрип: трастовые бейджи (адрес теперь в шапке под ценой)
       '<div class="card__strip">' +
-        '<span class="strip-item">' + STRIP_SVG.shield + 'Проверенный автомобиль</span>' +
+        '<span class="strip-item">' + STRIP_SVG.shield + 'Проверено</span>' +
         '<span class="strip-sep"></span>' +
-        '<span class="strip-item">' + STRIP_SVG.wrench + 'Техническая проверка</span>' +
+        '<span class="strip-item">' + STRIP_SVG.wrench + 'Гарантия</span>' +
         '<span class="strip-sep"></span>' +
-        '<span class="strip-item">' + STRIP_SVG.doc + 'Юридическая чистота</span>' +
+        '<span class="strip-item">' + STRIP_SVG.doc + 'Правомерность</span>' +
       '</div>';
     return el;
   }
