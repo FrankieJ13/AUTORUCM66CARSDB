@@ -266,6 +266,16 @@
     const addr = ADDRESS_BY_CITY[c.city] || '';
     const addrLine = [c.city, addr].filter(Boolean).join(', ');
 
+    // "бензин, 1.6 МТ (80 л.с.)" → fuel="Бензин" + engine="1.6 МТ (80 л.с.)"
+    const engRaw = c.engine || '';
+    let fuel = '', engine = engRaw;
+    const i = engRaw.indexOf(', ');
+    if (i > 0) {
+      fuel = engRaw.slice(0, i).trim();
+      engine = engRaw.slice(i + 2).trim();
+      if (fuel) fuel = fuel.charAt(0).toUpperCase() + fuel.slice(1);
+    }
+
     // Карточка НЕ кликабельна целиком. Кликабельно только фото.
     const el = document.createElement('article');
     el.className = 'card';
@@ -286,19 +296,20 @@
         (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(brand + ' ' + modelLine) + '">' : '') +
       '</a>' +
       '<div class="tiles">' +
-          tile('year',    'Год',         c.year) +
-          tile('engine',  'Двигатель',   c.engine) +
-          tile('flag',    'Страна',      country) +
-          tile('gearbox', 'Коробка',     c.transmission) +
-          tile('seats',   'Мест',        c.seats) +
-          tile('drive',   'Привод',      c.drive) +
-          tile('miles',   'Пробег',      fmtMileage(c.mileage)) +
-          tile('wheel',   'Руль',        c.wheel) +
-          tile('owner',   'Владельцы',   c.owners) +
-          tile('body',    'Кузов',       c.body) +
-          tile('state',   'Состояние',   c.condition) +
-          tile('color',   'Цвет',        c.color) +
-          tile('pts',     'ПТС',         c.pts) +
+          tile('year',    'Год',           c.year) +
+          tile('miles',   'Пробег',        fmtMileage(c.mileage)) +
+          tile('engine',  'Двигатель',     engine) +
+          tile('fuel',    'Тип двигателя', fuel) +
+          tile('gearbox', 'Коробка',       c.transmission) +
+          tile('drive',   'Привод',        c.drive) +
+          tile('body',    'Кузов',         c.body) +
+          tile('seats',   'Мест',          c.seats) +
+          tile('color',   'Цвет',          c.color) +
+          tile('wheel',   'Руль',          c.wheel) +
+          tile('pts',     'ПТС',           c.pts) +
+          tile('owner',   'Владельцы',     c.owners) +
+          tile('state',   'Состояние',     c.condition) +
+          tile('flag',    'Страна',        country) +
       '</div>' +
       // Нижняя плашка-стрип: трастовые бейджи (адрес теперь в шапке под ценой)
       '<div class="card__strip">' +
