@@ -270,18 +270,22 @@
     const el = document.createElement('article');
     el.className = 'card';
     el.innerHTML =
+      // Шапка на всю ширину
+      '<div class="card__head">' +
+        '<div class="card__head-left">' +
+          (brand ?     '<h3 class="card__title">' + esc(brand) + '</h3>' : '') +
+          (modelLine ? '<div class="card__subtitle">' + esc(modelLine) + '</div>' : '') +
+        '</div>' +
+        '<div class="card__head-right">' +
+          '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
+          (addrLine ? '<div class="card__addr">' + STRIP_SVG.pin + esc(addrLine) + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      // Фото слева, плитки справа — на уровне метрик
       '<a class="card__media" href="' + esc(c.url || '#') + '" target="_blank" rel="noopener">' +
         (photo ? '<img loading="lazy" src="' + esc(photo) + '" alt="' + esc(brand + ' ' + modelLine) + '">' : '') +
       '</a>' +
-      '<div class="card__body">' +
-        '<div class="card__head">' +
-          '<div class="card__head-left">' +
-            (brand ?     '<h3 class="card__title">' + esc(brand) + '</h3>' : '') +
-            (modelLine ? '<div class="card__subtitle">' + esc(modelLine) + '</div>' : '') +
-          '</div>' +
-          '<div class="card__price">' + fmtPrice(c.price) + '</div>' +
-        '</div>' +
-        '<div class="tiles">' +
+      '<div class="tiles">' +
           tile('year',    'Год',         c.year) +
           tile('engine',  'Двигатель',   c.engine) +
           tile('flag',    'Страна',      country) +
@@ -295,16 +299,14 @@
           tile('state',   'Состояние',   c.condition) +
           tile('color',   'Цвет',        c.color) +
           tile('pts',     'ПТС',         c.pts) +
-        '</div>' +
       '</div>' +
-      // Нижняя плашка-стрип: трастовые бейджи + адрес дилера справа
+      // Нижняя плашка-стрип: трастовые бейджи (адрес теперь в шапке под ценой)
       '<div class="card__strip">' +
         '<span class="strip-item">' + STRIP_SVG.shield + 'Проверенный автомобиль</span>' +
         '<span class="strip-sep"></span>' +
         '<span class="strip-item">' + STRIP_SVG.wrench + 'Техническая проверка</span>' +
         '<span class="strip-sep"></span>' +
         '<span class="strip-item">' + STRIP_SVG.doc + 'Юридическая чистота</span>' +
-        (addrLine ? '<span class="strip-item strip-item--push">' + STRIP_SVG.pin + esc(addrLine) + '</span>' : '') +
       '</div>';
     return el;
   }
